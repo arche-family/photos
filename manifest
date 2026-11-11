@@ -1,0 +1,6 @@
+name: photos
+version: 1
+title: Photos
+about: The phone's pictures, the newest first, in Arche
+publisher: arche
+needs: files
