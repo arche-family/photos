@@ -14,7 +14,7 @@ import files;
 import host_api;
 import std;
 
-const SHEET: str = "body { padding: 0; } .app { display: flex; flex-direction: column; gap: 12px; padding: 16px; } h1 { font-size: 30px; color: var(--nimadir-text); } .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; } button.cell { padding: 0; border: 0; border-radius: 6px; background: var(--nimadir-surface); } img.thumb { width: 100%; } .none { font-size: 16px; color: var(--nimadir-muted); } .view { display: flex; flex-direction: column; gap: 12px; } img.full { width: 100%; } .name { font-size: 15px; color: var(--nimadir-muted); } .bar { display: flex; flex-direction: row; gap: 12px; } button { padding: 12px 20px; border-radius: 24px; font-size: 16px; border: 0; background: var(--nimadir-accent-wash); color: var(--nimadir-text); } .hidden { display: none; }";
+const SHEET: str = "body { padding: 0; } .app { display: flex; flex-direction: column; gap: 12px; padding: 16px; } h1 { font-size: 30px; color: var(--nimadir-text); } .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; } button.cell { padding: 0; border: 0; border-radius: 6px; background: var(--nimadir-surface); } img.thumb { width: 100%; } .none, .count { font-size: 16px; color: var(--nimadir-muted); } .view { display: flex; flex-direction: column; gap: 12px; } img.full { width: 100%; } .name { font-size: 15px; color: var(--nimadir-muted); } .bar { display: flex; flex-direction: row; gap: 12px; } button { padding: 12px 20px; border-radius: 24px; font-size: 16px; border: 0; background: var(--nimadir-accent-wash); color: var(--nimadir-text); } .hidden { display: none; }";
 
 const FOLDER: str = "Pictures";
 
@@ -31,6 +31,7 @@ type Photos = struct {
     shown: alloc.String,
     /// The page's nodes.
     list: u32,
+    count: u32,
     grid: u32,
     empty: u32,
     view: u32,
@@ -41,7 +42,7 @@ type Photos = struct {
 fn init(host: &mut std.Host, a: alloc.Allocator) -> Photos {
     _ = dom.add_stylesheet(host, css: SHEET);
     let root = dom.root(host);
-    let markup = "<div class='app'><div class='list'><h1>Photos</h1><div class='none'>No photos yet</div><div class='grid'></div></div><div class='view hidden'><img class='full'><div class='name'></div><div class='bar'><button data-k='close'>Back</button><button data-k='delete'>Delete</button></div></div></div>";
+    let markup = "<div class='app'><div class='list'><h1>Photos</h1><div class='count'></div><div class='none'>No photos yet</div><div class='grid'></div></div><div class='view hidden'><img class='full'><div class='name'></div><div class='bar'><button data-k='close'>Back</button><button data-k='delete'>Delete</button></div></div></div>";
     var why = alloc.String.init(a);
     if not dom.set_markup(host, item: root, markup: markup, why: &mut why, a: a) {
         host_api.log(host, msg: why.view());
@@ -52,6 +53,7 @@ fn init(host: &mut std.Host, a: alloc.Allocator) -> Photos {
         all: alloc.List(Picture).init(a),
         shown: alloc.String.init(a),
         list: first(host, selector: ".list", a: a),
+        count: first(host, selector: ".count", a: a),
         grid: first(host, selector: ".grid", a: a),
         empty: first(host, selector: ".none", a: a),
         view: first(host, selector: ".view", a: a),
@@ -180,6 +182,17 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
     dom.toggle_class(host, item: state.view, name: "hidden", on: true);
     dom.toggle_class(host, item: state.list, name: "hidden", on: false);
     dom.toggle_class(host, item: state.empty, name: "hidden", on: state.all.len() > 0);
+    // How many, as "1 photo" or "2 photos"; none for none.
+    var count = alloc.String.init(a);
+    if state.all.len() > 0 {
+        count.push_u64(state.all.len() as u64);
+        if state.all.len() == 1 {
+            count.push_str(" photo");
+        } else {
+            count.push_str(" photos");
+        }
+    }
+    dom.set_text(host, item: state.count, text: count.view());
     for old in dom.children(host, item: state.grid, a: a).items() {
         dom.release(host, item: old.*);
     }

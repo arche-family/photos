@@ -1,140 +1,152 @@
 === headless run: 6 frames ===
 
 --- frame 0  (clicks fed to guest: []) ---
-   [page] 20 nodes
+   [page] 22 nodes
    #1 body
      #2 div.app {click}
        #3 div.list
          #4 h1
            #5 "Photos"
-         #6 div.none.hidden
-           #7 "No photos yet"
-         #8 div.grid
-           #17 button.cell [data-k="p:IMG_20261110_093000.png"]
-             #18 img.thumb [src="0" alt="IMG_20261110_093000.png"]
-           #19 button.cell [data-k="p:IMG_20261110_090000.png"]
-             #20 img.thumb [src="1" alt="IMG_20261110_090000.png"]
-       #9 div.view.hidden
-         #10 img.full
-         #11 div.name
-         #12 div.bar
-           #13 button [data-k="close"]
-             #14 "Back"
-           #15 button [data-k="delete"]
-             #16 "Delete"
+         #6 div.count
+           #18 "2 photos"
+         #7 div.none.hidden
+           #8 "No photos yet"
+         #9 div.grid
+           #19 button.cell [data-k="p:IMG_20261110_093000.png"]
+             #20 img.thumb [src="0" alt="IMG_20261110_093000.png"]
+           #21 button.cell [data-k="p:IMG_20261110_090000.png"]
+             #22 img.thumb [src="1" alt="IMG_20261110_090000.png"]
+       #10 div.view.hidden
+         #11 img.full
+         #12 div.name
+         #13 div.bar
+           #14 button [data-k="close"]
+             #15 "Back"
+           #16 button [data-k="delete"]
+             #17 "Delete"
 
 --- frame 1  (clicks fed to guest: []) ---
-   [tap] #18
+   [tap] #20
+   [page] 23 nodes
+   #1 body
+     #2 div.app {click}
+       #3 div.list.hidden
+         #4 h1
+           #5 "Photos"
+         #6 div.count
+           #18 "2 photos"
+         #7 div.none.hidden
+           #8 "No photos yet"
+         #9 div.grid
+           #19 button.cell [data-k="p:IMG_20261110_093000.png"]
+             #20 img.thumb [src="0" alt="IMG_20261110_093000.png"]
+           #21 button.cell [data-k="p:IMG_20261110_090000.png"]
+             #22 img.thumb [src="1" alt="IMG_20261110_090000.png"]
+       #10 div.view
+         #11 img.full [src="0"]
+         #12 div.name
+           #23 "IMG_20261110_093000.png"
+         #13 div.bar
+           #14 button [data-k="close"]
+             #15 "Back"
+           #16 button [data-k="delete"]
+             #17 "Delete"
+
+--- frame 2  (clicks fed to guest: []) ---
+   [tap] #16
+   [page] 21 nodes
+   #1 body
+     #2 div.app {click}
+       #3 div.list
+         #4 h1
+           #5 "Photos"
+         #6 div.count
+           #24 "1 photo"
+         #7 div.none.hidden
+           #8 "No photos yet"
+         #9 div.grid
+           #25 button.cell [data-k="p:IMG_20261110_090000.png"]
+             #26 img.thumb [src="1" alt="IMG_20261110_090000.png"]
+       #10 div.view.hidden
+         #11 img.full [src="0"]
+         #12 div.name
+           #23 "IMG_20261110_093000.png"
+         #13 div.bar
+           #14 button [data-k="close"]
+             #15 "Back"
+           #16 button [data-k="delete"]
+             #17 "Delete"
+
+--- frame 3  (clicks fed to guest: []) ---
+   [tap] #26
    [page] 21 nodes
    #1 body
      #2 div.app {click}
        #3 div.list.hidden
          #4 h1
            #5 "Photos"
-         #6 div.none.hidden
-           #7 "No photos yet"
-         #8 div.grid
-           #17 button.cell [data-k="p:IMG_20261110_093000.png"]
-             #18 img.thumb [src="0" alt="IMG_20261110_093000.png"]
-           #19 button.cell [data-k="p:IMG_20261110_090000.png"]
-             #20 img.thumb [src="1" alt="IMG_20261110_090000.png"]
-       #9 div.view
-         #10 img.full [src="0"]
-         #11 div.name
-           #21 "IMG_20261110_093000.png"
-         #12 div.bar
-           #13 button [data-k="close"]
-             #14 "Back"
-           #15 button [data-k="delete"]
-             #16 "Delete"
-
---- frame 2  (clicks fed to guest: []) ---
-   [tap] #15
-   [page] 19 nodes
-   #1 body
-     #2 div.app {click}
-       #3 div.list
-         #4 h1
-           #5 "Photos"
-         #6 div.none.hidden
-           #7 "No photos yet"
-         #8 div.grid
-           #22 button.cell [data-k="p:IMG_20261110_090000.png"]
-             #23 img.thumb [src="1" alt="IMG_20261110_090000.png"]
-       #9 div.view.hidden
-         #10 img.full [src="0"]
-         #11 div.name
-           #21 "IMG_20261110_093000.png"
-         #12 div.bar
-           #13 button [data-k="close"]
-             #14 "Back"
-           #15 button [data-k="delete"]
-             #16 "Delete"
-
---- frame 3  (clicks fed to guest: []) ---
-   [tap] #23
-   [page] 19 nodes
-   #1 body
-     #2 div.app {click}
-       #3 div.list.hidden
-         #4 h1
-           #5 "Photos"
-         #6 div.none.hidden
-           #7 "No photos yet"
-         #8 div.grid
-           #22 button.cell [data-k="p:IMG_20261110_090000.png"]
-             #23 img.thumb [src="1" alt="IMG_20261110_090000.png"]
-       #9 div.view
-         #10 img.full [src="1"]
-         #11 div.name
-           #24 "IMG_20261110_090000.png"
-         #12 div.bar
-           #13 button [data-k="close"]
-             #14 "Back"
-           #15 button [data-k="delete"]
-             #16 "Delete"
+         #6 div.count
+           #24 "1 photo"
+         #7 div.none.hidden
+           #8 "No photos yet"
+         #9 div.grid
+           #25 button.cell [data-k="p:IMG_20261110_090000.png"]
+             #26 img.thumb [src="1" alt="IMG_20261110_090000.png"]
+       #10 div.view
+         #11 img.full [src="1"]
+         #12 div.name
+           #27 "IMG_20261110_090000.png"
+         #13 div.bar
+           #14 button [data-k="close"]
+             #15 "Back"
+           #16 button [data-k="delete"]
+             #17 "Delete"
 
 --- frame 4  (clicks fed to guest: []) ---
-   [tap] #13
-   [page] 19 nodes
+   [tap] #14
+   [page] 21 nodes
    #1 body
      #2 div.app {click}
        #3 div.list
          #4 h1
            #5 "Photos"
-         #6 div.none.hidden
-           #7 "No photos yet"
-         #8 div.grid
-           #25 button.cell [data-k="p:IMG_20261110_090000.png"]
-             #26 img.thumb [src="1" alt="IMG_20261110_090000.png"]
-       #9 div.view.hidden
-         #10 img.full [src="1"]
-         #11 div.name
-           #24 "IMG_20261110_090000.png"
-         #12 div.bar
-           #13 button [data-k="close"]
-             #14 "Back"
-           #15 button [data-k="delete"]
-             #16 "Delete"
+         #6 div.count
+           #28 "1 photo"
+         #7 div.none.hidden
+           #8 "No photos yet"
+         #9 div.grid
+           #29 button.cell [data-k="p:IMG_20261110_090000.png"]
+             #30 img.thumb [src="1" alt="IMG_20261110_090000.png"]
+       #10 div.view.hidden
+         #11 img.full [src="1"]
+         #12 div.name
+           #27 "IMG_20261110_090000.png"
+         #13 div.bar
+           #14 button [data-k="close"]
+             #15 "Back"
+           #16 button [data-k="delete"]
+             #17 "Delete"
 
 --- frame 5  (clicks fed to guest: []) ---
-   [page] 19 nodes
+   [page] 21 nodes
    #1 body
      #2 div.app {click}
        #3 div.list
          #4 h1
            #5 "Photos"
-         #6 div.none.hidden
-           #7 "No photos yet"
-         #8 div.grid
-           #25 button.cell [data-k="p:IMG_20261110_090000.png"]
-             #26 img.thumb [src="1" alt="IMG_20261110_090000.png"]
-       #9 div.view.hidden
-         #10 img.full [src="1"]
-         #11 div.name
-           #24 "IMG_20261110_090000.png"
-         #12 div.bar
-           #13 button [data-k="close"]
-             #14 "Back"
-           #15 button [data-k="delete"]
-             #16 "Delete"
+         #6 div.count
+           #28 "1 photo"
+         #7 div.none.hidden
+           #8 "No photos yet"
+         #9 div.grid
+           #29 button.cell [data-k="p:IMG_20261110_090000.png"]
+             #30 img.thumb [src="1" alt="IMG_20261110_090000.png"]
+       #10 div.view.hidden
+         #11 img.full [src="1"]
+         #12 div.name
+           #27 "IMG_20261110_090000.png"
+         #13 div.bar
+           #14 button [data-k="close"]
+             #15 "Back"
+           #16 button [data-k="delete"]
+             #17 "Delete"

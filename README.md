@@ -4,7 +4,7 @@ The Arche phone's gallery, written in [Arche](https://github.com/arche-family/ar
 
 It works like Android's gallery:
 
-- The pictures in the phone's shared Pictures folder, as a grid, the newest first: a camera names its photos by when they were taken (`IMG_20261110_093000.png`).
+- How many there are, and the pictures in the phone's shared Pictures folder as a grid, the newest first: a camera names its photos by when they were taken (`IMG_20261110_093000.png`).
 - A tap on one shows it whole, with its name, Back and Delete.
 - A picture the camera takes while the app is behind is there when it comes back: the folder is looked at again on each update, and only pictures new to the app are read.
 
