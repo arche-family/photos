@@ -14,7 +14,7 @@ import files;
 import host_api;
 import std;
 
-const SHEET: str = "body { padding: 0; } .app { display: flex; flex-direction: column; gap: 12px; padding: 16px; } h1 { font-size: 30px; color: var(--nimadir-text); } .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; } button.cell { padding: 0; border: 0; border-radius: 6px; background: var(--nimadir-surface); } img.thumb { width: 100%; } .none, .count { font-size: 16px; color: var(--nimadir-muted); } .view { display: flex; flex-direction: column; gap: 12px; } img.full { width: 100%; } .name { font-size: 15px; color: var(--nimadir-muted); } .bar { display: flex; flex-direction: row; gap: 12px; } button { padding: 12px 20px; border-radius: 24px; font-size: 16px; border: 0; background: var(--nimadir-accent-wash); color: var(--nimadir-text); } .hidden { display: none; }";
+const SHEET: str = "body { padding: 0; } .app { display: flex; flex-direction: column; gap: 12px; padding: 16px; } .list { display: flex; flex-direction: column; gap: 12px; } h1 { font-size: 30px; color: var(--nimadir-text); } .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; } button.cell { padding: 0; border: 0; border-radius: 6px; background: var(--nimadir-surface); } img.thumb { width: 100%; } .none, .count { font-size: 16px; color: var(--nimadir-muted); } .view { display: flex; flex-direction: column; gap: 12px; } img.full { width: 100%; } .name { font-size: 15px; color: var(--nimadir-muted); } .bar { display: flex; flex-direction: row; gap: 12px; } button { padding: 12px 20px; border-radius: 24px; font-size: 16px; border: 0; background: var(--nimadir-accent-wash); color: var(--nimadir-text); } .hidden { display: none; }";
 
 const FOLDER: str = "Pictures";
 
