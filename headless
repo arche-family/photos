@@ -1,1 +1,1 @@
---frames 6 --share arche:phone/files@0.1.0=media --click 1:20,2:16,3:26,4:14
+--frames 6 --share arche:phone/files@0.1.0=media --click 1:20,2:14,3:34,4:16 --add arche:phone/video@0.1.0#play --add arche:phone/video@0.1.0#view=none --add arche:phone/video@0.1.0#playing=false --add arche:phone/video@0.1.0#stop

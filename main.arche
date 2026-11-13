@@ -1,34 +1,52 @@
 /// Photos, the Arche phone's gallery, written in Arche, as Android's is:
-/// the pictures in the phone's shared Pictures folder, the newest first
-/// (a camera names them by when they were taken), as a grid; a tap on one
-/// shows it whole, with its name, Back and Delete. A picture the camera
-/// takes while the app is behind is there when it comes back. An app of
-/// the page: its taps come as click events.
+/// the pictures of the phone's shared Pictures folder (PNG and JPEG) and
+/// the videos of its Movies folder, the newest first (a camera names them
+/// by when they were taken), as a grid, a video's cell its first frame
+/// marked ▶; a tap on a picture shows it whole, with its name, Back and
+/// Delete, and on a video plays it there. What the camera takes while the
+/// app is behind is there when it comes back. An app of the page: its
+/// taps come as click events.
 ///
 /// An app of the phone's world (arche:phone, wit/): it reads the shared
-/// files through files (its manifest's needs: files), and hands each PNG
-/// to the shell to decode (image-load), drawn by its number.
+/// files through files (its manifest's needs: files), and hands each
+/// picture, and a video's first frame, to the shell to decode
+/// (image-load), drawn by its number; the phone plays a video (video),
+/// into an image of its own it keeps up to date.
 import alloc;
 import dom;
 import files;
 import host_api;
 import std;
+import video;
 
-const SHEET: str = "body { padding: 0; } .app { display: flex; flex-direction: column; gap: 12px; padding: 16px; } .list { display: flex; flex-direction: column; gap: 12px; } h1 { font-size: 30px; color: var(--nimadir-text); } .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; } button.cell { padding: 0; border: 0; border-radius: 6px; background: var(--nimadir-surface); } img.thumb { width: 100%; } .none, .count { font-size: 16px; color: var(--nimadir-muted); } .view { display: flex; flex-direction: column; gap: 12px; } img.full { width: 100%; } .name { font-size: 15px; color: var(--nimadir-muted); } .bar { display: flex; flex-direction: row; gap: 12px; } button { padding: 12px 20px; border-radius: 24px; font-size: 16px; border: 0; background: var(--nimadir-accent-wash); color: var(--nimadir-text); } .hidden { display: none; }";
+const SHEET: str = "body { padding: 0; } .app { display: flex; flex-direction: column; gap: 12px; padding: 16px; } .list { display: flex; flex-direction: column; gap: 12px; } h1 { font-size: 30px; color: var(--nimadir-text); } .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; } button.cell { padding: 0; border: 0; border-radius: 6px; background: var(--nimadir-surface); } button.movie { display: flex; flex-direction: column; align-items: center; background: #1C1B1F; color: #FFFFFF; font-size: 15px; } img.thumb { width: 100%; } .none, .count { font-size: 16px; color: var(--nimadir-muted); } .view { display: flex; flex-direction: column; gap: 12px; } img.full { width: 100%; } .name { font-size: 15px; color: var(--nimadir-muted); } .bar { display: flex; flex-direction: row; gap: 12px; } button { padding: 12px 20px; border-radius: 24px; font-size: 16px; border: 0; background: var(--nimadir-accent-wash); color: var(--nimadir-text); } .hidden { display: none; }";
 
-const FOLDER: str = "Pictures";
+const PICTURES: str = "Pictures";
+const MOVIES: str = "Movies";
 
-/// A picture: its file's name, and the shell's number for it.
-type Picture = struct {
+/// How often a playing video's frame is drawn again, in ms.
+const EVERY_MS: u32 = 33;
+
+/// The shell's number for no image.
+const NONE: u32 = 0xFFFFFFFF;
+
+/// A picture or a video: its path in the shared files, its file's name,
+/// whether it is a video, and the shell's number for it (a video's first
+/// frame; NONE when it has none).
+type Item = struct {
+    path: alloc.String,
     name: alloc.String,
+    movie: bool,
     handle: u32,
 }
 
 type Photos = struct {
-    /// The pictures, the newest first.
-    all: alloc.List(Picture),
-    /// The picture shown whole; "" for the grid.
+    /// The pictures and videos, the newest first.
+    all: alloc.List(Item),
+    /// The path of what is shown whole; "" for the grid.
     shown: alloc.String,
+    /// The playing video's image's number, given to the img; NONE before.
+    playing: u32,
     /// The page's nodes.
     list: u32,
     count: u32,
@@ -50,8 +68,9 @@ fn init(host: &mut std.Host, a: alloc.Allocator) -> Photos {
     let app = first(host, selector: ".app", a: a);
     dom.listen(host, item: app, kind: "click");
     var state = Photos {
-        all: alloc.List(Picture).init(a),
+        all: alloc.List(Item).init(a),
         shown: alloc.String.init(a),
+        playing: NONE,
         list: first(host, selector: ".list", a: a),
         count: first(host, selector: ".count", a: a),
         grid: first(host, selector: ".grid", a: a),
@@ -82,68 +101,192 @@ fn update(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
     if changed {
         show(state, host: host, a: a);
     }
-}
-
-/// Whether name is a PNG's.
-fn is_png(name: str) -> bool {
-    let n = name.len();
-    return n > 4 and (name[n - 4..n].eq(".png") or name[n - 4..n].eq(".PNG"));
-}
-
-/// The Pictures folder looked at again: a picture new to the app loaded,
-/// one gone dropped. Whether anything changed.
-fn look(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) -> bool {
-    let found = files.list(host, path: FOLDER, a: a);
-    var names = alloc.List(alloc.String).init(a);
-    // The newest first: the names, a camera's, in the order of when.
-    var k = found.len();
-    while k > 0 {
-        k -= 1;
-        let e = &found.items()[k];
-        if not e.folder and is_png(e.name.view()) {
-            names.push(alloc.String.from(e.name.view(), a));
+    // A video shown whole: the phone's image of it, once it plays, drawn
+    // again a frame time on while it does.
+    if is_movie(state.shown.view()) {
+        match video.view(host) {
+            some(h) => {
+                if h != state.playing {
+                    state.playing = h;
+                    var src = alloc.String.init(a);
+                    src.push_u64(h as u64);
+                    dom.set_attribute(host, item: state.full, name: "src", value_: src.view());
+                }
+            }
+            none => { }
+        }
+        // Until the phone's image comes, and while it plays.
+        if state.playing == NONE or video.playing(host) {
+            host_api.request_frame(host, after_ms: EVERY_MS);
         }
     }
-    var same = names.len() == state.all.len();
+}
+
+/// Whether name ends with tail, in any case of ASCII letters.
+fn ends(name: str, tail: str) -> bool {
+    let n = name.len();
+    let t = tail.len();
+    if n <= t {
+        return false;
+    }
     var i: usize = 0;
-    while same and i < names.len() : (i += 1) {
-        if not names.items()[i].view().eq(state.all.items()[i].name.view()) {
+    while i < t : (i += 1) {
+        var c = name.bytes()[n - t + i];
+        if c >= 'A' and c <= 'Z' {
+            c = c + 32;
+        }
+        if c != tail.bytes()[i] {
+            return false;
+        }
+    }
+    return true;
+}
+
+/// Whether name is a picture's: PNG or JPEG.
+fn is_picture(name: str) -> bool {
+    return ends(name: name, tail: ".png") or ends(name: name, tail: ".jpg") or ends(name: name, tail: ".jpeg");
+}
+
+/// Whether name is a video's: Motion JPEG in AVI, as the camera records.
+fn is_movie(name: str) -> bool {
+    return ends(name: name, tail: ".avi");
+}
+
+/// The JPEG of a video's first frame, in its bytes: the first frame chunk
+/// ("00dc") after its frames' list; empty when there is none.
+fn first_frame(bytes: []u8) -> []u8 {
+    var at: usize = 0;
+    while at + 12 <= bytes.len() {
+        if bytes[at] == 'm' and bytes[at + 1] == 'o' and bytes[at + 2] == 'v' and bytes[at + 3] == 'i' {
+            var c = at + 4;
+            while c + 8 <= bytes.len() {
+                let size = (bytes[c + 4] as usize) | ((bytes[c + 5] as usize) << 8) | ((bytes[c + 6] as usize) << 16) | ((bytes[c + 7] as usize) << 24);
+                if size > bytes.len() - c - 8 {
+                    return bytes[0..0];
+                }
+                if bytes[c + 2] == 'd' and bytes[c + 3] == 'c' {
+                    return bytes[c + 8..c + 8 + size];
+                }
+                c = c + 8 + size + size % 2;
+            }
+            return bytes[0..0];
+        }
+        at += 1;
+    }
+    return bytes[0..0];
+}
+
+/// The items of folder, picture or video as movie says, onto into.
+fn found_in(host: &mut std.Host, folder: str, movie: bool, into: &mut alloc.List(Item), a: alloc.Allocator) {
+    for e in files.list(host, path: folder, a: a).items() {
+        let n = e.name.view();
+        if e.folder or (movie and not is_movie(n)) or (not movie and not is_picture(n)) {
+            continue;
+        }
+        var path = alloc.String.from(folder, a);
+        path.push_str("/");
+        path.push_str(n);
+        into.push(Item { path: path, name: alloc.String.from(n, a), movie: movie, handle: NONE });
+    }
+}
+
+/// Whether x is after y, byte by byte, a prefix before what is longer.
+fn later(x: str, y: str) -> bool {
+    var i: usize = 0;
+    while i < x.len() and i < y.len() : (i += 1) {
+        if x.bytes()[i] != y.bytes()[i] {
+            return x.bytes()[i] > y.bytes()[i];
+        }
+    }
+    return x.len() > y.len();
+}
+
+/// Whether item x comes before y, the newest first: a camera's name says
+/// when after its four letters (IMG_, VID_), so the later of those; then
+/// the later name.
+fn before(x: &Item, y: &Item) -> bool {
+    let xn = x.name.view();
+    let yn = y.name.view();
+    var xs = xn;
+    var ys = yn;
+    if xn.len() > 4 and yn.len() > 4 {
+        xs = xn[4..xn.len()];
+        ys = yn[4..yn.len()];
+    }
+    if xs.eq(ys) {
+        return later(x: xn, y: yn);
+    }
+    return later(x: xs, y: ys);
+}
+
+/// The Pictures and Movies folders looked at again: what is new to the
+/// app loaded, what is gone dropped. Whether anything changed.
+fn look(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) -> bool {
+    var found = alloc.List(Item).init(a);
+    found_in(host, folder: PICTURES, movie: false, into: &mut found, a: a);
+    found_in(host, folder: MOVIES, movie: true, into: &mut found, a: a);
+    // The newest first: their places sorted by insertion, then the items
+    // in that order.
+    var order = alloc.List(usize).init(a);
+    var j: usize = 0;
+    while j < found.len() : (j += 1) {
+        order.push(j);
+        var at = order.len() - 1;
+        while at > 0 and before(x: &found.items()[order.items()[at]], y: &found.items()[order.items()[at - 1]]) {
+            let t = order.items()[at];
+            let u = order.items()[at - 1];
+            order.items_mut()[at] = u;
+            order.items_mut()[at - 1] = t;
+            at -= 1;
+        }
+    }
+    var sorted = alloc.List(Item).init(a);
+    for o in order.items() {
+        let f = &found.items()[o.*];
+        sorted.push(Item { path: alloc.String.from(f.path.view(), a), name: alloc.String.from(f.name.view(), a), movie: f.movie, handle: NONE });
+    }
+    var same = sorted.len() == state.all.len();
+    var i: usize = 0;
+    while same and i < sorted.len() : (i += 1) {
+        if not sorted.items()[i].path.view().eq(state.all.items()[i].path.view()) {
             same = false;
         }
     }
     if same {
         return false;
     }
-    var now = alloc.List(Picture).init(a);
-    for n in names.items() {
-        var handle: u32 = 0;
+    var now = alloc.List(Item).init(a);
+    for n in sorted.items() {
+        var handle = NONE;
         var known = false;
         for p in state.all.items() {
-            if p.name.view().eq(n.view()) {
+            if p.path.view().eq(n.path.view()) {
                 handle = p.handle;
                 known = true;
             }
         }
         if not known {
-            var path = alloc.String.from(FOLDER, a);
-            path.push_str("/");
-            path.push_str(n.view());
-            match files.read(host, path: path.view(), a: a) {
+            match files.read(host, path: n.path.view(), a: a) {
                 some(bytes) => {
-                    var why = alloc.String.init(a);
-                    match host_api.image_load(host, bytes: bytes.items(), why: &mut why, a: a) {
-                        some(h) => {
-                            handle = h;
-                            known = true;
-                        }
-                        none => { host_api.log(host, msg: why.view()); }
+                    var image = bytes.items();
+                    if n.movie {
+                        image = first_frame(bytes.items());
                     }
+                    var why = alloc.String.init(a);
+                    if image.len() > 0 {
+                        match host_api.image_load(host, bytes: image, why: &mut why, a: a) {
+                            some(h) => { handle = h; }
+                            none => { host_api.log(host, msg: why.view()); }
+                        }
+                    }
+                    // A video is listed whether or not its first frame is.
+                    known = n.movie or handle != NONE;
                 }
                 none => { }
             }
         }
         if known {
-            now.push(Picture { name: alloc.String.from(n.view(), a), handle: handle });
+            now.push(Item { path: alloc.String.from(n.path.view(), a), name: alloc.String.from(n.name.view(), a), movie: n.movie, handle: handle });
         }
     }
     state.all = now;
@@ -153,24 +296,48 @@ fn look(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) -> bool {
 fn press(state: &mut Photos, host: &mut std.Host, key: str, a: alloc.Allocator) {
     if key.starts_with("p:") {
         state.shown = alloc.String.from(key[2..key.len()], a);
+        if is_movie(state.shown.view()) {
+            video.play(host, path: state.shown.view());
+        }
     } else if key.eq("close") {
+        if is_movie(state.shown.view()) {
+            video.stop(host);
+        }
         state.shown = alloc.String.init(a);
+        state.playing = NONE;
     } else if key.eq("delete") {
-        var path = alloc.String.from(FOLDER, a);
-        path.push_str("/");
-        path.push_str(state.shown.view());
-        _ = files.remove(host, path: path.view());
+        if is_movie(state.shown.view()) {
+            video.stop(host);
+        }
+        _ = files.remove(host, path: state.shown.view());
         state.shown = alloc.String.init(a);
+        state.playing = NONE;
         _ = look(state, host: host, a: a);
     }
 }
 
-/// The page as it is: the grid, or the picture shown whole.
+/// "1 photo", "2 photos", "1 video": how many there are of what.
+fn counted(out: &mut alloc.String, n: u64, what: str) {
+    out.push_u64(n);
+    out.push_str(" ");
+    out.push_str(what);
+    if n != 1 {
+        out.push_str("s");
+    }
+}
+
+/// The page as it is: the grid, or what is shown whole.
 fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
     for p in state.all.items() {
-        if state.shown.len() > 0 and p.name.view().eq(state.shown.view()) {
+        if state.shown.len() > 0 and p.path.view().eq(state.shown.view()) {
+            // A picture by its own number; a video, its first frame until
+            // the phone's image of it plays.
             var src = alloc.String.init(a);
-            src.push_u64(p.handle as u64);
+            if p.movie and state.playing != NONE {
+                src.push_u64(state.playing as u64);
+            } else {
+                src.push_u64(p.handle as u64);
+            }
             dom.set_attribute(host, item: state.full, name: "src", value_: src.view());
             dom.set_text(host, item: state.name, text: p.name.view());
             dom.toggle_class(host, item: state.list, name: "hidden", on: true);
@@ -182,15 +349,25 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
     dom.toggle_class(host, item: state.view, name: "hidden", on: true);
     dom.toggle_class(host, item: state.list, name: "hidden", on: false);
     dom.toggle_class(host, item: state.empty, name: "hidden", on: state.all.len() > 0);
-    // How many, as "1 photo" or "2 photos"; none for none.
-    var count = alloc.String.init(a);
-    if state.all.len() > 0 {
-        count.push_u64(state.all.len() as u64);
-        if state.all.len() == 1 {
-            count.push_str(" photo");
+    // How many, as "1 photo" or "2 photos · 1 video"; none for none.
+    var photos: u64 = 0;
+    var movies: u64 = 0;
+    for p in state.all.items() {
+        if p.movie {
+            movies += 1;
         } else {
-            count.push_str(" photos");
+            photos += 1;
         }
+    }
+    var count = alloc.String.init(a);
+    if photos > 0 {
+        counted(&mut count, n: photos, what: "photo");
+    }
+    if movies > 0 {
+        if photos > 0 {
+            count.push_str(" · ");
+        }
+        counted(&mut count, n: movies, what: "video");
     }
     dom.set_text(host, item: state.count, text: count.view());
     for old in dom.children(host, item: state.grid, a: a).items() {
@@ -198,17 +375,28 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
     }
     for p in state.all.items() {
         let cell = dom.create_element(host, tag: "button");
-        dom.set_attribute(host, item: cell, name: "class", value_: "cell");
+        if p.movie {
+            dom.set_attribute(host, item: cell, name: "class", value_: "cell movie");
+        } else {
+            dom.set_attribute(host, item: cell, name: "class", value_: "cell");
+        }
         var k = alloc.String.from("p:", a);
-        k.push_str(p.name.view());
+        k.push_str(p.path.view());
         dom.set_attribute(host, item: cell, name: "data-k", value_: k.view());
-        let img = dom.create_element(host, tag: "img");
-        dom.set_attribute(host, item: img, name: "class", value_: "thumb");
-        var src = alloc.String.init(a);
-        src.push_u64(p.handle as u64);
-        dom.set_attribute(host, item: img, name: "src", value_: src.view());
-        dom.set_attribute(host, item: img, name: "alt", value_: p.name.view());
-        dom.append_child(host, parent_: cell, child: img);
+        if p.handle != NONE {
+            let img = dom.create_element(host, tag: "img");
+            dom.set_attribute(host, item: img, name: "class", value_: "thumb");
+            var src = alloc.String.init(a);
+            src.push_u64(p.handle as u64);
+            dom.set_attribute(host, item: img, name: "src", value_: src.view());
+            dom.set_attribute(host, item: img, name: "alt", value_: p.name.view());
+            dom.append_child(host, parent_: cell, child: img);
+        }
+        if p.movie {
+            let mark = dom.create_element(host, tag: "div");
+            dom.set_text(host, item: mark, text: "▶");
+            dom.append_child(host, parent_: cell, child: mark);
+        }
         dom.append_child(host, parent_: state.grid, child: cell);
     }
 }
