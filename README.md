@@ -23,7 +23,7 @@ With [arche-lang](https://github.com/arche-family/arche-lang) checked out next t
 
 ## Test
 
-`media/Pictures` holds two small PNGs and a text file, which is not a picture; `media/Movies` a two-frame Motion JPEG video made by ffmpeg. `headless` holds the taps of a headless run, with `media/` shared as the phone shares its files (arche-wasm's `--share`), and the functions the phone world adds for videos: the video opened, its play asked for, and Back, which stops it; then the newer picture shown and deleted. `expected.txt` holds what arche-wasm's interpreter said, as Nimadir's shell does not run the phone's world. `app-check.sh` runs the app with arche-wasm, by the interpreter and by the JIT, each in a fresh copy of this directory, and compares what it says with `expected.txt`. CI runs it on every push.
+`media/Pictures` holds two small PNGs and a text file, which is not a picture; `media/Movies` a two-frame Motion JPEG video made by ffmpeg. `headless` holds the taps of a headless run, with `media/` shared as the phone shares its files (arche-wasm's `--share`), and the functions the phone world adds for videos: the video opened, its play asked for, and Back, which stops it; then the newer picture shown and deleted. `expected.txt` holds what arche-wasm's interpreter said, as Nimadir's shell does not run the phone's world. `app-check.sh` runs the app with arche-wasm, by the interpreter and by the JIT, each in a fresh copy of this directory, and compares what it says with `expected.txt`. CI runs it when started by hand (Actions' Run workflow).
 
 ```sh
 ../arche-lang/wasm/app-check.sh .
