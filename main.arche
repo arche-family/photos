@@ -1,9 +1,11 @@
-/// Photos, the Arche phone's gallery, written in Arche, as Android's is:
-/// the pictures of the phone's shared Pictures folder (PNG and JPEG) and
-/// the videos of its Movies folder, the newest first (a camera names them
-/// by when they were taken), as a grid, a video's cell its first frame
-/// marked ▶; a tap on a picture shows it whole, with its name, Back and
-/// Delete, and on a video plays it there. What the camera takes while the
+/// Photos, the Arche phone's gallery, written in Arche (docs/sprints.md
+/// T7, T10 in arche-os), as a phone's is: the pictures of the phone's
+/// shared Pictures folder (PNG and JPEG) and the videos of its Movies
+/// folder, the newest first (a camera names them by when they were taken),
+/// as a grid of squares edge to edge, a video's cell its first frame with
+/// a play button in its corner; a tap on a picture shows it whole on
+/// black, its name at the top by Back's arrow and Delete at the bottom,
+/// and on a video plays it there. What the camera takes while the
 /// app is behind is there when it comes back. An app of the page: its
 /// taps come as click events.
 ///
@@ -19,7 +21,7 @@ import host_api;
 import std;
 import video;
 
-const SHEET: str = "body { padding: 0; } .app { display: flex; flex-direction: column; gap: 12px; padding: 16px; } .list { display: flex; flex-direction: column; gap: 12px; } h1 { font-size: 30px; color: var(--nimadir-text); } .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; } button.cell { padding: 0; border: 0; border-radius: 6px; background: var(--nimadir-surface); } button.movie { display: flex; flex-direction: column; align-items: center; background: #1C1B1F; color: #FFFFFF; font-size: 15px; } img.thumb { width: 100%; } .none, .count { font-size: 16px; color: var(--nimadir-muted); } .view { display: flex; flex-direction: column; gap: 12px; } img.full { width: 100%; } .name { font-size: 15px; color: var(--nimadir-muted); } .bar { display: flex; flex-direction: row; gap: 12px; } button { padding: 12px 20px; border-radius: 24px; font-size: 16px; border: 0; background: var(--nimadir-accent-wash); color: var(--nimadir-text); } .hidden { display: none; }";
+const SHEET: str = "body { padding: 0; margin: 0; } .icon { font-family: icons; font-size: 24px; line-height: 1; } .icon.fill { font-variation-settings: 'FILL' 1; } .app { display: flex; flex-direction: column; min-height: 100vh; } .list { display: flex; flex-direction: column; } .big { font-size: 32px; padding: 16px 20px 2px; color: var(--nimadir-text); } .count { font-size: 14px; color: var(--nimadir-muted); padding: 0 20px 14px; } .none { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 96px 32px; font-size: 15px; color: var(--nimadir-muted); } .none .icon { font-size: 64px; color: var(--nimadir-border); } .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; } button.cell { position: relative; padding: 0; border: 0; border-radius: 0; height: 132px; overflow: hidden; background: var(--nimadir-surface); } img.thumb { width: 100%; height: 132px; object-fit: cover; } .play { position: absolute; left: 6px; bottom: 6px; color: #ffffff; font-size: 22px; } .view { display: flex; flex-direction: column; min-height: 100vh; background: #000000; color: #ffffff; } .top { display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 6px 8px; } .name { font-size: 15px; font-weight: 500; color: #ffffff; } .stage { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; } img.full { width: 100%; } .bar { display: flex; flex-direction: row; justify-content: center; padding: 12px 0 24px; } .iconbtn { width: 48px; height: 48px; border-radius: 24px; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: transparent; color: #ffffff; } .hidden { display: none; }";
 
 const PICTURES: str = "Pictures";
 const MOVIES: str = "Movies";
@@ -60,7 +62,7 @@ type Photos = struct {
 fn init(host: &mut std.Host, a: alloc.Allocator) -> Photos {
     _ = dom.add_stylesheet(host, css: SHEET);
     let root = dom.root(host);
-    let markup = "<div class='app'><div class='list'><h1>Photos</h1><div class='count'></div><div class='none'>No photos yet</div><div class='grid'></div></div><div class='view hidden'><img class='full'><div class='name'></div><div class='bar'><button data-k='close'>Back</button><button data-k='delete'>Delete</button></div></div></div>";
+    let markup = "<div class='app'><div class='list'><div class='big'>Photos</div><div class='count'></div><div class='none'><span class='icon'>photo_library</span><div>No photos yet</div></div><div class='grid'></div></div><div class='view hidden'><div class='top'><button class='iconbtn' data-k='close'><span class='icon'>arrow_back</span></button><div class='name'></div></div><div class='stage'><img class='full'></div><div class='bar'><button class='iconbtn' data-k='delete'><span class='icon'>delete</span></button></div></div></div>";
     var why = alloc.String.init(a);
     if not dom.set_markup(host, item: root, markup: markup, why: &mut why, a: a) {
         host_api.log(host, msg: why.view());
@@ -393,8 +395,10 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
             dom.append_child(host, parent_: cell, child: img);
         }
         if p.movie {
-            let mark = dom.create_element(host, tag: "div");
-            dom.set_text(host, item: mark, text: "▶");
+            // A video's mark: a play button in its corner.
+            let mark = dom.create_element(host, tag: "span");
+            dom.set_attribute(host, item: mark, name: "class", value_: "icon fill play");
+            dom.set_text(host, item: mark, text: "play_circle");
             dom.append_child(host, parent_: cell, child: mark);
         }
         dom.append_child(host, parent_: state.grid, child: cell);
