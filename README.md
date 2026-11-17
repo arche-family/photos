@@ -2,14 +2,13 @@
 
 The Arche phone's gallery, written in [Arche](https://github.com/arche-family/arche-lang): a WebAssembly component of the Arche phone's world, which the phone has from its first start. That world is Nimadir's mini-app world and what a phone adds to it, here the phone's shared files; its WIT is in `wit/` (from arche-os's `phone/wit`), and `world` names it. Nimadir's own shell, which has none of it, does not run it.
 
-It works like Android's gallery:
+It works like a phone's gallery:
 
-- How many there are, and the pictures in the phone's shared Pictures folder (PNG and JPEG) and the videos in its Movies folder as a grid, the newest first: a camera names its photos and videos by when they were taken (`IMG_20261110_093000.png`, `VID_20261110_100000.avi`). A video's cell is its first frame, marked ▶.
-- A tap on a video plays it, the phone keeping its image up to date frame by frame (the phone world's `video` interface), with its name, Back and Delete.
-- A tap on one shows it whole, with its name, Back and Delete.
+- How many there are, and the pictures in the phone's shared Pictures folder (PNG and JPEG) and the videos in its Movies folder (Motion JPEG in AVI, MP4 and QuickTime), the newest first, under the day each was taken: Today, Yesterday, a weekday, or the date. A camera names its photos and videos by when they were taken (`IMG_20261110_093000.jpg`, `VID_20261110_100000.mp4`). They are squares of a grid four across, edge to edge; a video's has its length in its corner.
+- A tap on a picture shows it whole on black to the screen's edges, when it was taken at the top by Back's arrow, and Delete; a tap on a video plays it there. The phone's Back goes back to the grid.
 - A picture the camera takes while the app is behind is there when it comes back: the folder is looked at again on each update, and only pictures new to the app are read.
 
-It reads the shared files through the phone world's `files` interface, which the phone gives an app whose manifest needs `files`, and hands each picture, and each video's first frame (a JPEG: the camera's videos are Motion JPEG in AVI), to the shell to decode (`image-load`), drawing it by its number in an `img`. It is an app of the page: its taps come as click events.
+It reads the shared files through the phone world's `files` interface, which the phone gives an app whose manifest needs `files`, and asks the phone for each picture fitted to a square (`files.image`), which decodes a camera's 12 megapixels and keeps the thumbnail, so that the gallery opens at once the next time; a picture shown whole is fitted to the screen. An AVI's first frame is decoded by the shell (`image-load`), an MP4's length read from its movie header (`files.read-part`). It is an app of the page: its taps come as click events.
 
 ## Build
 

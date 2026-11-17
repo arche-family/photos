@@ -1,1 +1,1 @@
---frames 6 --share arche:phone/files@0.1.0=media --click 1:27,2:15,3:40,4:22 --add arche:phone/video@0.1.0#play --add arche:phone/video@0.1.0#view=none --add arche:phone/video@0.1.0#playing=false --add arche:phone/video@0.1.0#stop
+--frames 7 --now-millis 1794294000000 --share arche:phone/files@0.1.0=media --click 1:56,2:15,3:66,4:15,5:90,6:29 --add arche:phone/video@0.1.0#play --add arche:phone/video@0.1.0#view=none --add arche:phone/video@0.1.0#playing=false --add arche:phone/video@0.1.0#stop

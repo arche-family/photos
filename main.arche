@@ -1,30 +1,40 @@
 /// Photos, the Arche phone's gallery, written in Arche (docs/sprints.md
-/// T7, T10 in arche-os), as a phone's is: the pictures of the phone's
-/// shared Pictures folder (PNG and JPEG) and the videos of its Movies
-/// folder, the newest first (a camera names them by when they were taken),
-/// as a grid of squares edge to edge, a video's cell its first frame with
-/// a play button in its corner; a tap on a picture shows it whole on
-/// black, its name at the top by Back's arrow and Delete at the bottom,
-/// and on a video plays it there. What the camera takes while the
-/// app is behind is there when it comes back. An app of the page: its
-/// taps come as click events.
+/// T7, T10, T12 in arche-os), as a phone's is: the pictures of the
+/// phone's shared Pictures folder (PNG and JPEG) and the videos of its
+/// Movies folder, the newest first, under the day each was taken (a
+/// camera names them by when, IMG_20261110_104427.jpg): Today, Yesterday,
+/// a weekday, or the date. Each is a square of a grid four across, edge
+/// to edge, a video's with its length in its corner. A tap shows a
+/// picture whole on black, when it was taken at the top by Back's arrow
+/// and Delete at the bottom, and plays a video there. The phone decodes
+/// the pictures (files' image), a camera's 12 megapixels fitted to a
+/// square's size, and keeps those thumbnails: the gallery opens at once
+/// the next time. What the camera takes while the app is behind is there
+/// when it comes back. An app of the page: its taps come as click events.
 ///
 /// An app of the phone's world (arche:phone, wit/): it reads the shared
-/// files through files (its manifest's needs: files), and hands each
-/// picture, and a video's first frame, to the shell to decode
-/// (image-load), drawn by its number; the phone plays a video (video),
-/// into an image of its own it keeps up to date.
+/// files through files (its manifest's needs: files); the phone plays a
+/// video (video), into an image of its own it keeps up to date.
 import alloc;
+import appkit;
 import dom;
 import files;
 import host_api;
 import std;
 import video;
 
-const SHEET: str = "body { padding: 0; margin: 0; } .icon { font-family: icons; font-size: 24px; line-height: 1; } .icon.fill { font-variation-settings: 'FILL' 1; } .app { display: flex; flex-direction: column; min-height: 100vh; } .list { display: flex; flex-direction: column; } .big { font-size: 32px; padding: 16px 20px 2px; color: var(--nimadir-text); } .count { font-size: 14px; color: var(--nimadir-muted); padding: 0 20px 14px; } .none { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 96px 32px; font-size: 15px; color: var(--nimadir-muted); } .none .icon { font-size: 64px; color: var(--nimadir-border); } .grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; } button.cell { position: relative; padding: 0; border: 0; border-radius: 0; height: 132px; overflow: hidden; background: var(--nimadir-surface); } img.thumb { width: 100%; height: 132px; object-fit: cover; } .play { position: absolute; left: 6px; bottom: 6px; color: #ffffff; font-size: 22px; } .view { display: flex; flex-direction: column; min-height: 100vh; background: #000000; color: #ffffff; } .top { display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 6px 8px; } .name { font-size: 15px; font-weight: 500; color: #ffffff; } .stage { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; } img.full { width: 100%; } .bar { display: flex; flex-direction: row; justify-content: center; padding: 12px 0 24px; } .iconbtn { width: 48px; height: 48px; border-radius: 24px; border: 0; padding: 0; display: flex; align-items: center; justify-content: center; background: transparent; color: #ffffff; } .hidden { display: none; }";
+const SHEET: str = "body { background: var(--kit-card); } body.black { background: #000000; } .list { display: flex; flex-direction: column; } .count { font-size: 14px; color: var(--kit-muted); padding: 0 24px 12px; margin-top: -10px; } .day { font-size: 15px; font-weight: 500; color: var(--kit-text); padding: 14px 16px 8px; } .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; } button.cell { position: relative; padding: 0; border: 0; border-radius: 0; height: 89px; overflow: hidden; background: var(--kit-line); } img.thumb { width: 100%; height: 89px; object-fit: cover; } .cell .film { position: absolute; left: 0; top: 0; width: 100%; height: 89px; display: flex; align-items: center; justify-content: center; color: var(--kit-muted); font-size: 30px; } .length { position: absolute; right: 5px; bottom: 4px; display: flex; flex-direction: row; align-items: center; gap: 2px; color: #ffffff; font-size: 12px; font-weight: 500; } .length .icon { font-size: 16px; } .view { display: flex; flex-direction: column; min-height: 100vh; background: #000000; color: #ffffff; } .top { display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 6px 8px; } .titles { display: flex; flex-direction: column; gap: 1px; min-width: 0; } .name { font-size: 16px; font-weight: 500; color: #ffffff; } .when { font-size: 12px; color: #b0b0b6; } .stage { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; } img.full { width: 100%; } .nofilm { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #b0b0b6; font-size: 14px; padding: 32px; text-align: center; } .nofilm .icon { font-size: 56px; color: #6a6a70; } .tools { display: flex; flex-direction: row; justify-content: space-around; padding: 10px 0 18px; } .view .iconbtn { color: #ffffff; } .hidden { display: none; }";
 
 const PICTURES: str = "Pictures";
 const MOVIES: str = "Movies";
+
+/// A thumbnail's side, in pixels: a square's on the screen, at the most.
+const THUMB: u32 = 256;
+/// A picture shown whole: the screen's longest side, at the most.
+const WHOLE: u32 = 1600;
+/// The thumbnails decoded in a frame, at the most: one takes a camera's
+/// photo a sixth of a second, and a frame may take a second.
+const PER_FRAME: u32 = 3;
 
 /// How often a playing video's frame is drawn again, in ms.
 const EVERY_MS: u32 = 33;
@@ -32,65 +42,93 @@ const EVERY_MS: u32 = 33;
 /// The shell's number for no image.
 const NONE: u32 = 0xFFFFFFFF;
 
-/// A picture or a video: its path in the shared files, its file's name,
-/// whether it is a video, and the shell's number for it (a video's first
-/// frame; NONE when it has none).
+const DAY_MS: i64 = 86400000;
+
+/// A picture or a video: its path in the shared files, its file's name and
+/// size, whether it is a video, the day it was taken (days since 1970,
+/// from its name; NO_DAY when its name does not say) and its minute of
+/// the day, its thumbnail's number (NONE before it is made), whether its
+/// thumbnail was asked for, and a video's length in seconds (0 unknown).
 type Item = struct {
     path: alloc.String,
     name: alloc.String,
+    size: u64,
     movie: bool,
+    day: i64,
+    minute: i64,
     handle: u32,
+    tried: bool,
+    seconds: u64,
 }
+
+const NO_DAY: i64 = -1000000;
 
 type Photos = struct {
     /// The pictures and videos, the newest first.
     all: alloc.List(Item),
     /// The path of what is shown whole; "" for the grid.
     shown: alloc.String,
-    /// The playing video's image's number, given to the img; NONE before.
+    /// The picture shown whole's number, used again for the next; the
+    /// playing video's image's.
+    whole: u32,
     playing: u32,
+    /// Whether the grid is to be made again, its thumbnails having come.
+    stale: bool,
     /// The page's nodes.
     list: u32,
     count: u32,
-    grid: u32,
+    days: u32,
     empty: u32,
     view: u32,
     full: u32,
+    nofilm: u32,
     name: u32,
+    when: u32,
 }
 
 fn init(host: &mut std.Host, a: alloc.Allocator) -> Photos {
+    let kit = appkit.css(a);
+    _ = dom.add_stylesheet(host, css: kit.view());
     _ = dom.add_stylesheet(host, css: SHEET);
     let root = dom.root(host);
-    let markup = "<div class='app'><div class='list'><div class='big'>Photos</div><div class='count'></div><div class='none'><span class='icon'>photo_library</span><div>No photos yet</div></div><div class='grid'></div></div><div class='view hidden'><div class='top'><button class='iconbtn' data-k='close'><span class='icon'>arrow_back</span></button><div class='name'></div></div><div class='stage'><img class='full'></div><div class='bar'><button class='iconbtn' data-k='delete'><span class='icon'>delete</span></button></div></div></div>";
+    let markup = "<div class='app'><div class='list'><div class='big'>Photos</div><div class='count'></div><div class='empty hidden'><span class='icon'>photo_library</span><div>No photos yet</div></div><div class='days'></div></div><div class='view hidden'><div class='top'><button class='iconbtn' data-k='close'><span class='icon'>arrow_back</span></button><div class='titles'><div class='name'></div><div class='when'></div></div></div><div class='stage'><img class='full'><div class='nofilm hidden'><span class='icon'>movie</span><div>This video plays once the phone reads MP4</div></div></div><div class='tools'><button class='iconbtn' data-k='delete'><span class='icon'>delete</span></button></div></div></div>";
     var why = alloc.String.init(a);
     if not dom.set_markup(host, item: root, markup: markup, why: &mut why, a: a) {
         host_api.log(host, msg: why.view());
     }
     let app = first(host, selector: ".app", a: a);
     dom.listen(host, item: app, kind: "click");
+    // Back, while a picture is shown whole, is the page's: to the grid.
+    dom.listen(host, item: dom.root(host), kind: "back");
     var state = Photos {
         all: alloc.List(Item).init(a),
         shown: alloc.String.init(a),
+        whole: NONE,
         playing: NONE,
+        stale: false,
         list: first(host, selector: ".list", a: a),
         count: first(host, selector: ".count", a: a),
-        grid: first(host, selector: ".grid", a: a),
-        empty: first(host, selector: ".none", a: a),
+        days: first(host, selector: ".days", a: a),
+        empty: first(host, selector: ".empty", a: a),
         view: first(host, selector: ".view", a: a),
         full: first(host, selector: ".full", a: a),
+        nofilm: first(host, selector: ".nofilm", a: a),
         name: first(host, selector: ".name", a: a),
+        when: first(host, selector: ".when", a: a),
     };
-    if look(&mut state, host: host, a: a) {
-        show(&mut state, host: host, a: a);
-    }
+    _ = look(&mut state, host: host, a: a);
+    thumbs(&mut state, host: host, a: a);
+    show(&mut state, host: host, a: a);
     return state;
 }
 
 fn update(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
     var changed = look(state, host: host, a: a);
     for e in dom.events(host, a: a).items() {
-        if e.kind.view().eq("click") {
+        if e.kind.view().eq("back") {
+            press(state, host: host, key: "close", a: a);
+            changed = true;
+        } else if e.kind.view().eq("click") {
             match key_of(host, n: e.target, a: a) {
                 some(k) => {
                     press(state, host: host, key: k.view(), a: a);
@@ -100,12 +138,14 @@ fn update(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
             }
         }
     }
-    if changed {
+    thumbs(state, host: host, a: a);
+    if changed or state.stale {
+        state.stale = false;
         show(state, host: host, a: a);
     }
     // A video shown whole: the phone's image of it, once it plays, drawn
     // again a frame time on while it does.
-    if is_movie(state.shown.view()) {
+    if is_avi(state.shown.view()) {
         match video.view(host) {
             some(h) => {
                 if h != state.playing {
@@ -117,7 +157,6 @@ fn update(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
             }
             none => { }
         }
-        // Until the phone's image comes, and while it plays.
         if state.playing == NONE or video.playing(host) {
             host_api.request_frame(host, after_ms: EVERY_MS);
         }
@@ -149,86 +188,255 @@ fn is_picture(name: str) -> bool {
     return ends(name: name, tail: ".png") or ends(name: name, tail: ".jpg") or ends(name: name, tail: ".jpeg");
 }
 
-/// Whether name is a video's: Motion JPEG in AVI, as the camera records.
+/// Whether name is a video's: Motion JPEG in AVI, as the camera records,
+/// or MP4 and QuickTime, as phones and cameras do.
 fn is_movie(name: str) -> bool {
+    return is_avi(name) or is_mp4(name);
+}
+
+fn is_avi(name: str) -> bool {
     return ends(name: name, tail: ".avi");
 }
 
-/// The JPEG of a video's first frame, in its bytes: the first frame chunk
-/// ("00dc") after its frames' list; empty when there is none.
-fn first_frame(bytes: []u8) -> []u8 {
-    var at: usize = 0;
-    while at + 12 <= bytes.len() {
-        if bytes[at] == 'm' and bytes[at + 1] == 'o' and bytes[at + 2] == 'v' and bytes[at + 3] == 'i' {
-            var c = at + 4;
-            while c + 8 <= bytes.len() {
-                let size = (bytes[c + 4] as usize) | ((bytes[c + 5] as usize) << 8) | ((bytes[c + 6] as usize) << 16) | ((bytes[c + 7] as usize) << 24);
-                if size > bytes.len() - c - 8 {
-                    return bytes[0..0];
-                }
-                if bytes[c + 2] == 'd' and bytes[c + 3] == 'c' {
-                    return bytes[c + 8..c + 8 + size];
-                }
-                c = c + 8 + size + size % 2;
-            }
-            return bytes[0..0];
+fn is_mp4(name: str) -> bool {
+    return ends(name: name, tail: ".mp4") or ends(name: name, tail: ".m4v") or ends(name: name, tail: ".mov");
+}
+
+/// The number the digits of s from at, n of them, make; -1 when one is no
+/// digit.
+fn digits(s: str, at: usize, n: usize) -> i64 {
+    if at + n > s.len() {
+        return -1;
+    }
+    var v: i64 = 0;
+    var i: usize = 0;
+    while i < n : (i += 1) {
+        let c = s.bytes()[at + i];
+        if c < '0' or c > '9' {
+            return -1;
         }
+        v = v * 10 + (c - '0') as i64;
+    }
+    return v;
+}
+
+/// The day y-m-d, in days since 1970-01-01 (Howard Hinnant's
+/// days_from_civil).
+fn days_of(y: i64, m: i64, d: i64) -> i64 {
+    var yy = y;
+    if m <= 2 {
+        yy -= 1;
+    }
+    let era = yy / 400;
+    let yoe = yy - era * 400;
+    var mp = m - 3;
+    if m <= 2 {
+        mp = m + 9;
+    }
+    let doy = (153 * mp + 2) / 5 + d - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    return era * 146097 + doe - 719468;
+}
+
+/// A day's year, month and day.
+type Civil = struct {
+    y: i64,
+    m: i64,
+    d: i64,
+}
+
+/// The day days since 1970-01-01 is (civil_from_days).
+fn civil_of(days: i64) -> Civil {
+    let z = days + 719468;
+    let era = z / 146097;
+    let doe = z - era * 146097;
+    let yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    var m = mp + 3;
+    if mp >= 10 {
+        m = mp - 9;
+    }
+    var y = yoe + era * 400;
+    if m <= 2 {
+        y += 1;
+    }
+    return Civil { y: y, m: m, d: d };
+}
+
+fn month_name(m: i64) -> str {
+    if m == 1 {
+        return "January";
+    }
+    if m == 2 {
+        return "February";
+    }
+    if m == 3 {
+        return "March";
+    }
+    if m == 4 {
+        return "April";
+    }
+    if m == 5 {
+        return "May";
+    }
+    if m == 6 {
+        return "June";
+    }
+    if m == 7 {
+        return "July";
+    }
+    if m == 8 {
+        return "August";
+    }
+    if m == 9 {
+        return "September";
+    }
+    if m == 10 {
+        return "October";
+    }
+    if m == 11 {
+        return "November";
+    }
+    return "December";
+}
+
+fn weekday_name(days: i64) -> str {
+    var w = (days + 3) % 7;
+    if w < 0 {
+        w += 7;
+    }
+    if w == 0 {
+        return "Monday";
+    }
+    if w == 1 {
+        return "Tuesday";
+    }
+    if w == 2 {
+        return "Wednesday";
+    }
+    if w == 3 {
+        return "Thursday";
+    }
+    if w == 4 {
+        return "Friday";
+    }
+    if w == 5 {
+        return "Saturday";
+    }
+    return "Sunday";
+}
+
+/// The day the user is in.
+fn today(host: &mut std.Host) -> i64 {
+    let ms = host_api.now_millis(host) + host_api.utc_offset(host) as i64 * 60000;
+    var d = ms / DAY_MS;
+    if ms % DAY_MS != 0 and ms < 0 {
+        d -= 1;
+    }
+    return d;
+}
+
+/// When a camera's name says it was taken: IMG_YYYYMMDD_HHMMSS or
+/// VID_..., or any name with YYYYMMDD_HHMMSS after a prefix of letters
+/// and a _. The day, and the minute of it.
+fn taken(name: str) -> [2]i64 {
+    var at: usize = 0;
+    while at < name.len() and at < 8 and name.bytes()[at] != '_' {
         at += 1;
     }
-    return bytes[0..0];
+    if at >= name.len() or name.bytes()[at] != '_' {
+        return [NO_DAY, 0];
+    }
+    let y = digits(name, at: at + 1, n: 4);
+    let m = digits(name, at: at + 5, n: 2);
+    let d = digits(name, at: at + 7, n: 2);
+    if y < 1970 or m < 1 or m > 12 or d < 1 or d > 31 {
+        return [NO_DAY, 0];
+    }
+    var minute: i64 = 0;
+    let h = digits(name, at: at + 10, n: 2);
+    let mi = digits(name, at: at + 12, n: 2);
+    if at + 9 < name.len() and name.bytes()[at + 9] == '_' and h >= 0 and h < 24 and mi >= 0 and mi < 60 {
+        minute = h * 60 + mi;
+    }
+    return [days_of(y: y, m: m, d: d), minute];
+}
+
+/// A day as a gallery says it, now being the day today: Today,
+/// Yesterday, a weekday within the week, else its date, with its year
+/// when that is not this one.
+fn day_said(day: i64, now: i64, out: &mut alloc.String) {
+    if day == NO_DAY {
+        out.push_str("Earlier");
+        return;
+    }
+    if day == now {
+        out.push_str("Today");
+        return;
+    }
+    if day == now - 1 {
+        out.push_str("Yesterday");
+        return;
+    }
+    if day < now and day > now - 7 {
+        out.push_str(weekday_name(day));
+        return;
+    }
+    let c = civil_of(day);
+    let n = civil_of(now);
+    out.push_str(month_name(c.m)[0..3]);
+    out.push_str(" ");
+    out.push_u64(c.d as u64);
+    if c.y != n.y {
+        out.push_str(", ");
+        out.push_u64(c.y as u64);
+    }
 }
 
 /// The items of folder, picture or video as movie says, onto into.
 fn found_in(host: &mut std.Host, folder: str, movie: bool, into: &mut alloc.List(Item), a: alloc.Allocator) {
     for e in files.list(host, path: folder, a: a).items() {
         let n = e.name.view();
-        if e.folder or (movie and not is_movie(n)) or (not movie and not is_picture(n)) {
+        if e.folder or n.starts_with(".") or (movie and not is_movie(n)) or (not movie and not is_picture(n)) {
             continue;
         }
         var path = alloc.String.from(folder, a);
         path.push_str("/");
         path.push_str(n);
-        into.push(Item { path: path, name: alloc.String.from(n, a), movie: movie, handle: NONE });
+        let when = taken(n);
+        into.push(Item { path: path, name: alloc.String.from(n, a), size: e.size, movie: movie, day: when[0], minute: when[1], handle: NONE, tried: false, seconds: 0 });
     }
 }
 
-/// Whether x is after y, byte by byte, a prefix before what is longer.
-fn later(x: str, y: str) -> bool {
+/// Whether x comes before y, the newest first: by the day and minute its
+/// name says, then by its name, the later first.
+fn before(x: &Item, y: &Item) -> bool {
+    if x.day != y.day {
+        return x.day > y.day;
+    }
+    if x.minute != y.minute {
+        return x.minute > y.minute;
+    }
+    let xn = x.name.view().bytes();
+    let yn = y.name.view().bytes();
     var i: usize = 0;
-    while i < x.len() and i < y.len() : (i += 1) {
-        if x.bytes()[i] != y.bytes()[i] {
-            return x.bytes()[i] > y.bytes()[i];
+    while i < xn.len() and i < yn.len() : (i += 1) {
+        if xn[i] != yn[i] {
+            return xn[i] > yn[i];
         }
     }
-    return x.len() > y.len();
-}
-
-/// Whether item x comes before y, the newest first: a camera's name says
-/// when after its four letters (IMG_, VID_), so the later of those; then
-/// the later name.
-fn before(x: &Item, y: &Item) -> bool {
-    let xn = x.name.view();
-    let yn = y.name.view();
-    var xs = xn;
-    var ys = yn;
-    if xn.len() > 4 and yn.len() > 4 {
-        xs = xn[4..xn.len()];
-        ys = yn[4..yn.len()];
-    }
-    if xs.eq(ys) {
-        return later(x: xn, y: yn);
-    }
-    return later(x: xs, y: ys);
+    return xn.len() > yn.len();
 }
 
 /// The Pictures and Movies folders looked at again: what is new to the
-/// app loaded, what is gone dropped. Whether anything changed.
+/// app listed, what is gone dropped, what was there kept with its
+/// thumbnail. Whether anything changed.
 fn look(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) -> bool {
     var found = alloc.List(Item).init(a);
     found_in(host, folder: PICTURES, movie: false, into: &mut found, a: a);
     found_in(host, folder: MOVIES, movie: true, into: &mut found, a: a);
-    // The newest first: their places sorted by insertion, then the items
-    // in that order.
     var order = alloc.List(usize).init(a);
     var j: usize = 0;
     while j < found.len() : (j += 1) {
@@ -242,15 +450,10 @@ fn look(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) -> bool {
             at -= 1;
         }
     }
-    var sorted = alloc.List(Item).init(a);
-    for o in order.items() {
-        let f = &found.items()[o.*];
-        sorted.push(Item { path: alloc.String.from(f.path.view(), a), name: alloc.String.from(f.name.view(), a), movie: f.movie, handle: NONE });
-    }
-    var same = sorted.len() == state.all.len();
+    var same = order.len() == state.all.len();
     var i: usize = 0;
-    while same and i < sorted.len() : (i += 1) {
-        if not sorted.items()[i].path.view().eq(state.all.items()[i].path.view()) {
+    while same and i < order.len() : (i += 1) {
+        if not found.items()[order.items()[i]].path.view().eq(state.all.items()[i].path.view()) {
             same = false;
         }
     }
@@ -258,57 +461,171 @@ fn look(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) -> bool {
         return false;
     }
     var now = alloc.List(Item).init(a);
-    for n in sorted.items() {
-        var handle = NONE;
-        var known = false;
+    for o in order.items() {
+        let n = &found.items()[o.*];
+        var item = Item { path: alloc.String.from(n.path.view(), a), name: alloc.String.from(n.name.view(), a), size: n.size, movie: n.movie, day: n.day, minute: n.minute, handle: NONE, tried: false, seconds: 0 };
         for p in state.all.items() {
             if p.path.view().eq(n.path.view()) {
-                handle = p.handle;
-                known = true;
+                item.handle = p.handle;
+                item.tried = p.tried;
+                item.seconds = p.seconds;
             }
         }
-        if not known {
-            match files.read(host, path: n.path.view(), a: a) {
-                some(bytes) => {
-                    var image = bytes.items();
-                    if n.movie {
-                        image = first_frame(bytes.items());
-                    }
-                    var why = alloc.String.init(a);
-                    if image.len() > 0 {
-                        match host_api.image_load(host, bytes: image, why: &mut why, a: a) {
-                            some(h) => { handle = h; }
-                            none => { host_api.log(host, msg: why.view()); }
-                        }
-                    }
-                    // A video is listed whether or not its first frame is.
-                    known = n.movie or handle != NONE;
-                }
-                none => { }
-            }
-        }
-        if known {
-            now.push(Item { path: alloc.String.from(n.path.view(), a), name: alloc.String.from(n.name.view(), a), movie: n.movie, handle: handle });
-        }
+        now.push(item);
     }
     state.all = now;
     return true;
 }
 
+/// Thumbnails for what has none yet, PER_FRAME of them a frame, the
+/// newest first, a frame after this asked for while some are left; the
+/// grid made again when some came.
+fn thumbs(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
+    var made: u32 = 0;
+    var left = false;
+    var k: usize = 0;
+    while k < state.all.len() : (k += 1) {
+        if state.all.items()[k].tried {
+            continue;
+        }
+        if made >= PER_FRAME {
+            left = true;
+            break;
+        }
+        made += 1;
+        let path = alloc.String.from(state.all.items()[k].path.view(), a);
+        var item = &mut state.all.items_mut()[k];
+        item.tried = true;
+        if item.movie {
+            item.seconds = movie_seconds(host, path: path.view(), size: item.size, a: a);
+            if is_avi(path.view()) {
+                item.handle = avi_poster(host, path: path.view(), a: a);
+            }
+        } else {
+            match files.image(host, path: path.view(), max: THUMB, into: NONE) {
+                some(h) => { item.handle = h; }
+                none => { }
+            }
+        }
+        state.stale = true;
+    }
+    if left {
+        host_api.request_frame(host, after_ms: 16);
+    }
+}
+
+/// An AVI's first frame, decoded by the shell: the first frame chunk
+/// ("00dc") after its frames' list.
+fn avi_poster(host: &mut std.Host, path: str, a: alloc.Allocator) -> u32 {
+    let bytes = files.read_part(host, path: path, from: 0, len: 1048576, a: a) orelse return NONE;
+    let b = bytes.items();
+    var at: usize = 0;
+    while at + 12 <= b.len() {
+        if b[at] == 'm' and b[at + 1] == 'o' and b[at + 2] == 'v' and b[at + 3] == 'i' {
+            var c = at + 4;
+            while c + 8 <= b.len() {
+                let size = (b[c + 4] as usize) | ((b[c + 5] as usize) << 8) | ((b[c + 6] as usize) << 16) | ((b[c + 7] as usize) << 24);
+                if size > b.len() - c - 8 {
+                    return NONE;
+                }
+                if b[c + 2] == 'd' and b[c + 3] == 'c' {
+                    var why = alloc.String.init(a);
+                    return host_api.image_load(host, bytes: b[c + 8..c + 8 + size], why: &mut why, a: a) orelse NONE;
+                }
+                c = c + 8 + size + size % 2;
+            }
+            return NONE;
+        }
+        at += 1;
+    }
+    return NONE;
+}
+
+/// How long a video is, in seconds: an AVI's frames by its frame time, an
+/// MP4's (and QuickTime's) movie header's duration by its time scale,
+/// from where its moov box is, at its start or its end. 0 when it does
+/// not say.
+fn movie_seconds(host: &mut std.Host, path: str, size: u64, a: alloc.Allocator) -> u64 {
+    if is_avi(path) {
+        let head = files.read_part(host, path: path, from: 0, len: 256, a: a) orelse return 0;
+        let b = head.items();
+        if b.len() < 56 {
+            return 0;
+        }
+        // avih: microseconds a frame at 32, total frames at 48.
+        let us = le32(b, at: 32) as u64;
+        let frames = le32(b, at: 48) as u64;
+        return us * frames / 1000000;
+    }
+    let start = files.read_part(host, path: path, from: 0, len: 262144, a: a) orelse return 0;
+    let s = mvhd_seconds(start.items());
+    if s != 0 or size <= 262144 {
+        return s;
+    }
+    var from: u64 = 0;
+    if size > 1048576 {
+        from = size - 1048576;
+    }
+    let tail = files.read_part(host, path: path, from: from, len: 1048576, a: a) orelse return 0;
+    return mvhd_seconds(tail.items());
+}
+
+/// A movie header's duration by its time scale, in seconds, from the
+/// first "mvhd" in b; 0 for none.
+fn mvhd_seconds(b: []u8) -> u64 {
+    var at: usize = 4;
+    while at + 32 <= b.len() {
+        if b[at] == 'm' and b[at + 1] == 'v' and b[at + 2] == 'h' and b[at + 3] == 'd' {
+            let v = b[at + 4];
+            if v == 1 and at + 40 <= b.len() {
+                let scale = be32(b, at: at + 24) as u64;
+                let dur = ((be32(b, at: at + 28) as u64) << 32) | (be32(b, at: at + 32) as u64);
+                if scale == 0 {
+                    return 0;
+                }
+                return dur / scale;
+            }
+            let scale = be32(b, at: at + 16) as u64;
+            let dur = be32(b, at: at + 20) as u64;
+            if scale == 0 {
+                return 0;
+            }
+            return dur / scale;
+        }
+        at += 1;
+    }
+    return 0;
+}
+
+fn le32(b: []u8, at: usize) -> u32 {
+    return (b[at] as u32) | ((b[at + 1] as u32) << 8) | ((b[at + 2] as u32) << 16) | ((b[at + 3] as u32) << 24);
+}
+
+fn be32(b: []u8, at: usize) -> u32 {
+    return ((b[at] as u32) << 24) | ((b[at + 1] as u32) << 16) | ((b[at + 2] as u32) << 8) | (b[at + 3] as u32);
+}
+
 fn press(state: &mut Photos, host: &mut std.Host, key: str, a: alloc.Allocator) {
     if key.starts_with("p:") {
         state.shown = alloc.String.from(key[2..key.len()], a);
-        if is_movie(state.shown.view()) {
+        if is_avi(state.shown.view()) {
             video.play(host, path: state.shown.view());
+        } else if not is_movie(state.shown.view()) {
+            // The picture whole, fitted to the screen, in the place of the
+            // one shown before.
+            match files.image(host, path: state.shown.view(), max: WHOLE, into: state.whole) {
+                some(h) => { state.whole = h; }
+                none => { }
+            }
         }
     } else if key.eq("close") {
-        if is_movie(state.shown.view()) {
+        if is_avi(state.shown.view()) {
             video.stop(host);
         }
         state.shown = alloc.String.init(a);
         state.playing = NONE;
     } else if key.eq("delete") {
-        if is_movie(state.shown.view()) {
+        if is_avi(state.shown.view()) {
             video.stop(host);
         }
         _ = files.remove(host, path: state.shown.view());
@@ -328,30 +645,77 @@ fn counted(out: &mut alloc.String, n: u64, what: str) {
     }
 }
 
+/// A video's length as a phone says it: 0:34, 12:05, 1:02:10.
+fn length_said(seconds: u64, out: &mut alloc.String) {
+    let h = seconds / 3600;
+    let m = seconds / 60 % 60;
+    let s = seconds % 60;
+    if h > 0 {
+        out.push_u64(h);
+        out.push_str(":");
+        if m < 10 {
+            out.push_str("0");
+        }
+    }
+    out.push_u64(m);
+    out.push_str(":");
+    if s < 10 {
+        out.push_str("0");
+    }
+    out.push_u64(s);
+}
+
 /// The page as it is: the grid, or what is shown whole.
 fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
+    let now = today(host);
     for p in state.all.items() {
         if state.shown.len() > 0 and p.path.view().eq(state.shown.view()) {
-            // A picture by its own number; a video, its first frame until
-            // the phone's image of it plays.
             var src = alloc.String.init(a);
-            if p.movie and state.playing != NONE {
+            var film = false;
+            if is_avi(p.path.view()) and state.playing != NONE {
                 src.push_u64(state.playing as u64);
-            } else {
+            } else if is_avi(p.path.view()) {
                 src.push_u64(p.handle as u64);
+            } else if p.movie {
+                film = true;
+            } else {
+                src.push_u64(state.whole as u64);
             }
             dom.set_attribute(host, item: state.full, name: "src", value_: src.view());
-            dom.set_text(host, item: state.name, text: p.name.view());
+            dom.toggle_class(host, item: state.full, name: "hidden", on: film);
+            dom.toggle_class(host, item: state.nofilm, name: "hidden", on: not film);
+            // When it was taken, as its name says; else its name.
+            var title = alloc.String.init(a);
+            var under = alloc.String.init(a);
+            if p.day != NO_DAY {
+                day_said(day: p.day, now: now, out: &mut title);
+                under.push_u64((p.minute / 60) as u64);
+                under.push_str(":");
+                if p.minute % 60 < 10 {
+                    under.push_str("0");
+                }
+                under.push_u64((p.minute % 60) as u64);
+                under.push_str(" · ");
+                under.push_str(p.name.view());
+            } else {
+                title.push_str(p.name.view());
+            }
+            dom.set_text(host, item: state.name, text: title.view());
+            dom.set_text(host, item: state.when, text: under.view());
             dom.toggle_class(host, item: state.list, name: "hidden", on: true);
             dom.toggle_class(host, item: state.view, name: "hidden", on: false);
+            // Black to the screen's edges, and Back the page's.
+            dom.toggle_class(host, item: dom.root(host), name: "black", on: true);
+            dom.set_attribute(host, item: dom.root(host), name: "data-back", value_: "1");
             return;
         }
     }
     state.shown = alloc.String.init(a);
     dom.toggle_class(host, item: state.view, name: "hidden", on: true);
     dom.toggle_class(host, item: state.list, name: "hidden", on: false);
+    dom.toggle_class(host, item: dom.root(host), name: "black", on: false);
+    dom.remove_attribute(host, item: dom.root(host), name: "data-back");
     dom.toggle_class(host, item: state.empty, name: "hidden", on: state.all.len() > 0);
-    // How many, as "1 photo" or "2 photos · 1 video"; none for none.
     var photos: u64 = 0;
     var movies: u64 = 0;
     for p in state.all.items() {
@@ -372,16 +736,27 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
         counted(&mut count, n: movies, what: "video");
     }
     dom.set_text(host, item: state.count, text: count.view());
-    for old in dom.children(host, item: state.grid, a: a).items() {
+    for old in dom.children(host, item: state.days, a: a).items() {
         dom.release(host, item: old.*);
     }
+    // A section a day: its name, then its grid.
+    var grid: u32 = 0;
+    var last_day = NO_DAY - 1;
     for p in state.all.items() {
-        let cell = dom.create_element(host, tag: "button");
-        if p.movie {
-            dom.set_attribute(host, item: cell, name: "class", value_: "cell movie");
-        } else {
-            dom.set_attribute(host, item: cell, name: "class", value_: "cell");
+        if p.day != last_day {
+            last_day = p.day;
+            let head = dom.create_element(host, tag: "div");
+            dom.set_attribute(host, item: head, name: "class", value_: "day");
+            var said = alloc.String.init(a);
+            day_said(day: p.day, now: now, out: &mut said);
+            dom.set_text(host, item: head, text: said.view());
+            dom.append_child(host, parent_: state.days, child: head);
+            grid = dom.create_element(host, tag: "div");
+            dom.set_attribute(host, item: grid, name: "class", value_: "grid");
+            dom.append_child(host, parent_: state.days, child: grid);
         }
+        let cell = dom.create_element(host, tag: "button");
+        dom.set_attribute(host, item: cell, name: "class", value_: "cell");
         var k = alloc.String.from("p:", a);
         k.push_str(p.path.view());
         dom.set_attribute(host, item: cell, name: "data-k", value_: k.view());
@@ -393,15 +768,30 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
             dom.set_attribute(host, item: img, name: "src", value_: src.view());
             dom.set_attribute(host, item: img, name: "alt", value_: p.name.view());
             dom.append_child(host, parent_: cell, child: img);
+        } else if p.movie {
+            let film = dom.create_element(host, tag: "span");
+            dom.set_attribute(host, item: film, name: "class", value_: "icon film");
+            dom.set_text(host, item: film, text: "movie");
+            dom.append_child(host, parent_: cell, child: film);
         }
         if p.movie {
-            // A video's mark: a play button in its corner.
-            let mark = dom.create_element(host, tag: "span");
-            dom.set_attribute(host, item: mark, name: "class", value_: "icon fill play");
-            dom.set_text(host, item: mark, text: "play_circle");
+            // A video's mark: its length in its corner.
+            let mark = dom.create_element(host, tag: "div");
+            dom.set_attribute(host, item: mark, name: "class", value_: "length");
+            let glyph = dom.create_element(host, tag: "span");
+            dom.set_attribute(host, item: glyph, name: "class", value_: "icon fill");
+            dom.set_text(host, item: glyph, text: "play_circle");
+            dom.append_child(host, parent_: mark, child: glyph);
+            let said = dom.create_element(host, tag: "span");
+            var t = alloc.String.init(a);
+            if p.seconds > 0 {
+                length_said(p.seconds, out: &mut t);
+            }
+            dom.set_text(host, item: said, text: t.view());
+            dom.append_child(host, parent_: mark, child: said);
             dom.append_child(host, parent_: cell, child: mark);
         }
-        dom.append_child(host, parent_: state.grid, child: cell);
+        dom.append_child(host, parent_: grid, child: cell);
     }
 }
 

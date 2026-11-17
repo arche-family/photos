@@ -147,6 +147,19 @@ interface files {
     make-folder: func(path: string) -> bool;
     /// The file, or the empty folder, at path taken away; whether it was.
     remove: func(path: string) -> bool;
+    /// Part of the file at path: len bytes, or as many as there are, from
+    /// byte from, a megabyte at most (T12): a song's tags, without the
+    /// song. None when there is no such file.
+    read-part: func(path: string, from: u64, len: u32) -> option<list<u8>>;
+    /// The picture at path (PNG or JPEG), decoded by the phone, turned as
+    /// its EXIF says and fitted within max pixels a side, its number for
+    /// an img's src, as host-api's image-load gives one (T12): a gallery
+    /// shows a camera's photos without holding them whole. One fitted to
+    /// 512 or less is kept, and comes at once the next time. Put in the
+    /// place of the picture numbered into, when that is one of the app's,
+    /// else a new one. None for no picture, or past the pixels an app may
+    /// hold.
+    image: func(path: string, max: u32, into: u32) -> option<u32>;
 }
 
 /// The phone's camera (T7): what it sees, and photos taken of it, kept in
@@ -194,8 +207,20 @@ interface audio {
     play: func(path: string) -> bool;
     /// What plays stopped.
     stop: func();
-    /// The path of what plays, whichever app played it; none for nothing.
+    /// The path of what plays, whichever app played it, paused or not;
+    /// none for nothing.
     playing: func() -> option<string>;
+    /// What plays paused where it is, and on again from there (T12).
+    pause: func();
+    resume: func();
+    /// Whether what plays is paused.
+    paused: func() -> bool;
+    /// How far into what plays it is, and how long it is, in ms; 0 while
+    /// the phone does not know yet.
+    position: func() -> u32;
+    duration: func() -> u32;
+    /// What plays moved to ms into it, paused or not.
+    seek: func(ms: u32);
 }
 
 /// Videos (T9): a video of the shared files, Motion JPEG in AVI as the
