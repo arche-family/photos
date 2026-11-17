@@ -201,9 +201,9 @@ interface camera {
 /// an alarm stops it. Only for an app whose manifest needs files, which
 /// may read them; another's play plays nothing.
 interface audio {
-    /// The WAV file at path in the shared files played from its start, in
-    /// the place of what played; whether it was asked to. What plays says
-    /// whether it does.
+    /// The song at path in the shared files (WAV, MP3, FLAC, Ogg Vorbis,
+    /// M4A) played from its start, in the place of what played; whether it
+    /// was asked to. What plays says whether it does.
     play: func(path: string) -> bool;
     /// What plays stopped.
     stop: func();
@@ -228,8 +228,10 @@ interface audio {
 /// frame by frame while the app is drawn, as camera's view is; one at a
 /// time an app. Only for an app whose manifest needs files.
 interface video {
-    /// The video at path in the shared files played from its start, in the
-    /// place of one that played.
+    /// The video at path in the shared files (the camera's Motion JPEG in
+    /// AVI; MP4, QuickTime or Matroska, H.264 with AAC) played from its
+    /// start, with its sound, in the place of one that played. It stops as
+    /// its app is left.
     play: func(path: string);
     /// What the video shows: the number of an image, as image-load's; none
     /// before one plays, or when path was not a video.

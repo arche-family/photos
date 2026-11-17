@@ -18,15 +18,15 @@
            #47 div.day
              #48 "Today"
            #49 div.grid
-             #50 button.cell [data-k="p:Movies/VID_20261110_100000.avi"]
+             #50 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
                #51 img.thumb [src="0" alt="VID_20261110_100000.avi"]
                #52 div.length
                  #53 span.icon.fill
                    #54 "play_circle"
                  #55 span
-             #56 button.cell [data-k="p:Pictures/IMG_20261110_093000.png"]
+             #56 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
                #57 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #58 button.cell [data-k="p:Pictures/IMG_20261110_090000.png"]
+             #58 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
                #59 img.thumb [src="2" alt="IMG_20261110_090000.png"]
        #13 div.view.hidden
          #14 div.top
@@ -42,7 +42,7 @@
              #24 span.icon
                #25 "movie"
              #26 div
-               #27 "This video plays once the phone reads MP4"
+               #27 "Can't play this video"
          #28 div.tools
            #29 button.iconbtn [data-k="delete"]
              #30 span.icon
@@ -67,15 +67,15 @@
            #47 div.day
              #48 "Today"
            #49 div.grid
-             #50 button.cell [data-k="p:Movies/VID_20261110_100000.avi"]
+             #50 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
                #51 img.thumb [src="0" alt="VID_20261110_100000.avi"]
                #52 div.length
                  #53 span.icon.fill
                    #54 "play_circle"
                  #55 span
-             #56 button.cell [data-k="p:Pictures/IMG_20261110_093000.png"]
+             #56 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
                #57 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #58 button.cell [data-k="p:Pictures/IMG_20261110_090000.png"]
+             #58 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
                #59 img.thumb [src="2" alt="IMG_20261110_090000.png"]
        #13 div.view
          #14 div.top
@@ -93,7 +93,7 @@
              #24 span.icon
                #25 "movie"
              #26 div
-               #27 "This video plays once the phone reads MP4"
+               #27 "Can't play this video"
          #28 div.tools
            #29 button.iconbtn [data-k="delete"]
              #30 span.icon
@@ -118,15 +118,15 @@
            #63 div.day
              #64 "Today"
            #65 div.grid
-             #66 button.cell [data-k="p:Movies/VID_20261110_100000.avi"]
+             #66 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
                #67 img.thumb [src="0" alt="VID_20261110_100000.avi"]
                #68 div.length
                  #69 span.icon.fill
                    #70 "play_circle"
                  #71 span
-             #72 button.cell [data-k="p:Pictures/IMG_20261110_093000.png"]
+             #72 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
                #73 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #74 button.cell [data-k="p:Pictures/IMG_20261110_090000.png"]
+             #74 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
                #75 img.thumb [src="2" alt="IMG_20261110_090000.png"]
        #13 div.view.hidden
          #14 div.top
@@ -144,7 +144,7 @@
              #24 span.icon
                #25 "movie"
              #26 div
-               #27 "This video plays once the phone reads MP4"
+               #27 "Can't play this video"
          #28 div.tools
            #29 button.iconbtn [data-k="delete"]
              #30 span.icon
@@ -169,15 +169,15 @@
            #63 div.day
              #64 "Today"
            #65 div.grid
-             #66 button.cell [data-k="p:Movies/VID_20261110_100000.avi"]
+             #66 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
                #67 img.thumb [src="0" alt="VID_20261110_100000.avi"]
                #68 div.length
                  #69 span.icon.fill
                    #70 "play_circle"
                  #71 span
-             #72 button.cell [data-k="p:Pictures/IMG_20261110_093000.png"]
+             #72 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
                #73 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #74 button.cell [data-k="p:Pictures/IMG_20261110_090000.png"]
+             #74 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
                #75 img.thumb [src="2" alt="IMG_20261110_090000.png"]
        #13 div.view
          #14 div.top
@@ -195,7 +195,7 @@
              #24 span.icon
                #25 "movie"
              #26 div
-               #27 "This video plays once the phone reads MP4"
+               #27 "Can't play this video"
          #28 div.tools
            #29 button.iconbtn [data-k="delete"]
              #30 span.icon
@@ -223,15 +223,15 @@
            #79 div.day
              #80 "Today"
            #81 div.grid
-             #82 button.cell [data-k="p:Movies/VID_20261110_100000.avi"]
+             #82 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
                #83 img.thumb [src="0" alt="VID_20261110_100000.avi"]
                #84 div.length
                  #85 span.icon.fill
                    #86 "play_circle"
                  #87 span
-             #88 button.cell [data-k="p:Pictures/IMG_20261110_093000.png"]
+             #88 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
                #89 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #90 button.cell [data-k="p:Pictures/IMG_20261110_090000.png"]
+             #90 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
                #91 img.thumb [src="2" alt="IMG_20261110_090000.png"]
        #13 div.view.hidden
          #14 div.top
@@ -249,7 +249,7 @@
              #24 span.icon
                #25 "movie"
              #26 div
-               #27 "This video plays once the phone reads MP4"
+               #27 "Can't play this video"
          #28 div.tools
            #29 button.iconbtn [data-k="delete"]
              #30 span.icon
@@ -275,15 +275,15 @@
            #79 div.day
              #80 "Today"
            #81 div.grid
-             #82 button.cell [data-k="p:Movies/VID_20261110_100000.avi"]
+             #82 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
                #83 img.thumb [src="0" alt="VID_20261110_100000.avi"]
                #84 div.length
                  #85 span.icon.fill
                    #86 "play_circle"
                  #87 span
-             #88 button.cell [data-k="p:Pictures/IMG_20261110_093000.png"]
+             #88 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
                #89 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #90 button.cell [data-k="p:Pictures/IMG_20261110_090000.png"]
+             #90 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
                #91 img.thumb [src="2" alt="IMG_20261110_090000.png"]
        #13 div.view
          #14 div.top
@@ -301,7 +301,7 @@
              #24 span.icon
                #25 "movie"
              #26 div
-               #27 "This video plays once the phone reads MP4"
+               #27 "Can't play this video"
          #28 div.tools
            #29 button.iconbtn [data-k="delete"]
              #30 span.icon
@@ -326,13 +326,13 @@
            #95 div.day
              #96 "Today"
            #97 div.grid
-             #98 button.cell [data-k="p:Movies/VID_20261110_100000.avi"]
+             #98 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
                #99 img.thumb [src="0" alt="VID_20261110_100000.avi"]
                #100 div.length
                  #101 span.icon.fill
                    #102 "play_circle"
                  #103 span
-             #104 button.cell [data-k="p:Pictures/IMG_20261110_093000.png"]
+             #104 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
                #105 img.thumb [src="1" alt="IMG_20261110_093000.png"]
        #13 div.view.hidden
          #14 div.top
@@ -350,7 +350,7 @@
              #24 span.icon
                #25 "movie"
              #26 div
-               #27 "This video plays once the phone reads MP4"
+               #27 "Can't play this video"
          #28 div.tools
            #29 button.iconbtn [data-k="delete"]
              #30 span.icon

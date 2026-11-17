@@ -91,7 +91,7 @@ fn init(host: &mut std.Host, a: alloc.Allocator) -> Photos {
     _ = dom.add_stylesheet(host, css: kit.view());
     _ = dom.add_stylesheet(host, css: SHEET);
     let root = dom.root(host);
-    let markup = "<div class='app'><div class='list'><div class='big'>Photos</div><div class='count'></div><div class='empty hidden'><span class='icon'>photo_library</span><div>No photos yet</div></div><div class='days'></div></div><div class='view hidden'><div class='top'><button class='iconbtn' data-k='close'><span class='icon'>arrow_back</span></button><div class='titles'><div class='name'></div><div class='when'></div></div></div><div class='stage'><img class='full'><div class='nofilm hidden'><span class='icon'>movie</span><div>This video plays once the phone reads MP4</div></div></div><div class='tools'><button class='iconbtn' data-k='delete'><span class='icon'>delete</span></button></div></div></div>";
+    let markup = "<div class='app'><div class='list'><div class='big'>Photos</div><div class='count'></div><div class='empty hidden'><span class='icon'>photo_library</span><div>No photos yet</div></div><div class='days'></div></div><div class='view hidden'><div class='top'><button class='iconbtn' data-k='close'><span class='icon'>arrow_back</span></button><div class='titles'><div class='name'></div><div class='when'></div></div></div><div class='stage'><img class='full'><div class='nofilm hidden'><span class='icon'>movie</span><div>Can't play this video</div></div></div><div class='tools'><button class='iconbtn' data-k='delete'><span class='icon'>delete</span></button></div></div></div>";
     var why = alloc.String.init(a);
     if not dom.set_markup(host, item: root, markup: markup, why: &mut why, a: a) {
         host_api.log(host, msg: why.view());
@@ -145,7 +145,7 @@ fn update(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
     }
     // A video shown whole: the phone's image of it, once it plays, drawn
     // again a frame time on while it does.
-    if is_avi(state.shown.view()) {
+    if is_movie(state.shown.view()) {
         match video.view(host) {
             some(h) => {
                 if h != state.playing {
@@ -153,6 +153,8 @@ fn update(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
                     var src = alloc.String.init(a);
                     src.push_u64(h as u64);
                     dom.set_attribute(host, item: state.full, name: "src", value_: src.view());
+                    dom.toggle_class(host, item: state.full, name: "hidden", on: false);
+                    dom.toggle_class(host, item: state.nofilm, name: "hidden", on: true);
                 }
             }
             none => { }
@@ -189,7 +191,7 @@ fn is_picture(name: str) -> bool {
 }
 
 /// Whether name is a video's: Motion JPEG in AVI, as the camera records,
-/// or MP4 and QuickTime, as phones and cameras do.
+/// or MP4 and QuickTime, as phones and cameras do, and Matroska.
 fn is_movie(name: str) -> bool {
     return is_avi(name) or is_mp4(name);
 }
@@ -199,7 +201,7 @@ fn is_avi(name: str) -> bool {
 }
 
 fn is_mp4(name: str) -> bool {
-    return ends(name: name, tail: ".mp4") or ends(name: name, tail: ".m4v") or ends(name: name, tail: ".mov");
+    return ends(name: name, tail: ".mp4") or ends(name: name, tail: ".m4v") or ends(name: name, tail: ".mov") or ends(name: name, tail: ".mkv");
 }
 
 /// The number the digits of s from at, n of them, make; -1 when one is no
@@ -500,6 +502,13 @@ fn thumbs(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
             item.seconds = movie_seconds(host, path: path.view(), size: item.size, a: a);
             if is_avi(path.view()) {
                 item.handle = avi_poster(host, path: path.view(), a: a);
+            } else {
+                // An MP4's: the poster the phone made of it, as Android's
+                // media scanner does, if it has.
+                match files.image(host, path: path.view(), max: THUMB, into: NONE) {
+                    some(h) => { item.handle = h; }
+                    none => { }
+                }
             }
         } else {
             match files.image(host, path: path.view(), max: THUMB, into: NONE) {
@@ -608,7 +617,7 @@ fn be32(b: []u8, at: usize) -> u32 {
 fn press(state: &mut Photos, host: &mut std.Host, key: str, a: alloc.Allocator) {
     if key.starts_with("p:") {
         state.shown = alloc.String.from(key[2..key.len()], a);
-        if is_avi(state.shown.view()) {
+        if is_movie(state.shown.view()) {
             video.play(host, path: state.shown.view());
         } else if not is_movie(state.shown.view()) {
             // The picture whole, fitted to the screen, in the place of the
@@ -619,13 +628,13 @@ fn press(state: &mut Photos, host: &mut std.Host, key: str, a: alloc.Allocator) 
             }
         }
     } else if key.eq("close") {
-        if is_avi(state.shown.view()) {
+        if is_movie(state.shown.view()) {
             video.stop(host);
         }
         state.shown = alloc.String.init(a);
         state.playing = NONE;
     } else if key.eq("delete") {
-        if is_avi(state.shown.view()) {
+        if is_movie(state.shown.view()) {
             video.stop(host);
         }
         _ = files.remove(host, path: state.shown.view());
@@ -672,9 +681,11 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
         if state.shown.len() > 0 and p.path.view().eq(state.shown.view()) {
             var src = alloc.String.init(a);
             var film = false;
-            if is_avi(p.path.view()) and state.playing != NONE {
+            // A video: its frames as it plays, its poster before, and
+            // that it cannot play when the phone has neither.
+            if p.movie and state.playing != NONE {
                 src.push_u64(state.playing as u64);
-            } else if is_avi(p.path.view()) {
+            } else if p.movie and p.handle != NONE {
                 src.push_u64(p.handle as u64);
             } else if p.movie {
                 film = true;
@@ -760,6 +771,13 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
         var k = alloc.String.from("p:", a);
         k.push_str(p.path.view());
         dom.set_attribute(host, item: cell, name: "data-k", value_: k.view());
+        // Its name, as a screen reader says it, as Android's gallery's.
+        var label = alloc.String.from("Photo ", a);
+        if p.movie {
+            label = alloc.String.from("Video ", a);
+        }
+        label.push_str(p.name.view());
+        dom.set_attribute(host, item: cell, name: "aria-label", value_: label.view());
         if p.handle != NONE {
             let img = dom.create_element(host, tag: "img");
             dom.set_attribute(host, item: img, name: "class", value_: "thumb");
