@@ -1,6 +1,10 @@
 name: photos
 version: 1
 title: Photos
-about: The phone's pictures, the newest first, in Arche
+about: Your photos and videos, day by day
+title.uz: Galereya
+about.uz: Suratlar va videolaringiz, kunma-kun
+title.ru: Галерея
+about.ru: Ваши фото и видео по дням
 publisher: arche
 needs: files

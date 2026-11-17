@@ -23,7 +23,7 @@ import host_api;
 import std;
 import video;
 
-const SHEET: str = "body { background: var(--kit-card); } body.black { background: #000000; } .list { display: flex; flex-direction: column; } .count { font-size: 14px; color: var(--kit-muted); padding: 0 24px 12px; margin-top: -10px; } .day { font-size: 15px; font-weight: 500; color: var(--kit-text); padding: 14px 16px 8px; } .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; } button.cell { position: relative; padding: 0; border: 0; border-radius: 0; height: 89px; overflow: hidden; background: var(--kit-line); } img.thumb { width: 100%; height: 89px; object-fit: cover; } .cell .film { position: absolute; left: 0; top: 0; width: 100%; height: 89px; display: flex; align-items: center; justify-content: center; color: var(--kit-muted); font-size: 30px; } .length { position: absolute; right: 5px; bottom: 4px; display: flex; flex-direction: row; align-items: center; gap: 2px; color: #ffffff; font-size: 12px; font-weight: 500; } .length .icon { font-size: 16px; } .view { display: flex; flex-direction: column; min-height: 100vh; background: #000000; color: #ffffff; } .top { display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 6px 8px; } .titles { display: flex; flex-direction: column; gap: 1px; min-width: 0; } .name { font-size: 16px; font-weight: 500; color: #ffffff; } .when { font-size: 12px; color: #b0b0b6; } .stage { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; } img.full { width: 100%; } .nofilm { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #b0b0b6; font-size: 14px; padding: 32px; text-align: center; } .nofilm .icon { font-size: 56px; color: #6a6a70; } .tools { display: flex; flex-direction: row; justify-content: space-around; padding: 10px 0 18px; } .view .iconbtn { color: #ffffff; } .hidden { display: none; }";
+const SHEET: str = "body { background: var(--kit-card); } body.black { background: #000000; } .list { display: flex; flex-direction: column; } .count { font-size: 14px; color: var(--kit-muted); padding: 0 24px 12px; margin-top: -10px; } .day { font-size: 15px; font-weight: 500; color: var(--kit-text); padding: 14px 16px 8px; } .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; } button.cell { position: relative; padding: 0; border: 0; border-radius: 0; height: 89px; overflow: hidden; background: var(--kit-line); } img.thumb { width: 100%; height: 89px; object-fit: cover; } .cell .film { position: absolute; left: 0; top: 0; width: 100%; height: 89px; display: flex; align-items: center; justify-content: center; color: var(--kit-muted); font-size: 30px; } .length { position: absolute; right: 5px; bottom: 4px; display: flex; flex-direction: row; align-items: center; gap: 2px; color: #ffffff; font-size: 12px; font-weight: 500; } .length .icon { font-size: 16px; } .view { display: flex; flex-direction: column; min-height: 100vh; background: #000000; color: #ffffff; } .top { display: flex; flex-direction: row; align-items: center; gap: 4px; padding: 6px 8px; } .titles { display: flex; flex-direction: column; gap: 1px; min-width: 0; } .name { font-size: 16px; font-weight: 500; color: #ffffff; } .when { font-size: 12px; color: #b0b0b6; } .stage { flex-grow: 1; display: flex; flex-direction: column; justify-content: center; align-items: stretch; } img.full { width: 100%; height: 72vh; object-fit: contain; } .nofilm { display: flex; flex-direction: column; align-items: center; gap: 10px; color: #b0b0b6; font-size: 14px; padding: 32px; text-align: center; } .nofilm .icon { font-size: 56px; color: #6a6a70; } .tools { display: flex; flex-direction: row; justify-content: space-around; padding: 10px 0 18px; } .view .iconbtn { color: #ffffff; } .hidden { display: none; }";
 
 const PICTURES: str = "Pictures";
 const MOVIES: str = "Movies";
@@ -43,6 +43,12 @@ const EVERY_MS: u32 = 33;
 const NONE: u32 = 0xFFFFFFFF;
 
 const DAY_MS: i64 = 86400000;
+
+/// The phone's languages, as its locale says (host_api.locale): English,
+/// Uzbek (in Latin letters) and Russian.
+const EN: u32 = 0;
+const UZ: u32 = 1;
+const RU: u32 = 2;
 
 /// A picture or a video: its path in the shared files, its file's name and
 /// size, whether it is a video, the day it was taken (days since 1970,
@@ -74,6 +80,10 @@ type Photos = struct {
     playing: u32,
     /// Whether the grid is to be made again, its thumbnails having come.
     stale: bool,
+    /// The language the page is in, and the locale it is of: the page is
+    /// made again when the phone's changes.
+    lang: u32,
+    locale: alloc.String,
     /// The page's nodes.
     list: u32,
     count: u32,
@@ -90,43 +100,332 @@ fn init(host: &mut std.Host, a: alloc.Allocator) -> Photos {
     let kit = appkit.css(a);
     _ = dom.add_stylesheet(host, css: kit.view());
     _ = dom.add_stylesheet(host, css: SHEET);
-    let root = dom.root(host);
-    let markup = "<div class='app'><div class='list'><div class='big'>Photos</div><div class='count'></div><div class='empty hidden'><span class='icon'>photo_library</span><div>No photos yet</div></div><div class='days'></div></div><div class='view hidden'><div class='top'><button class='iconbtn' data-k='close'><span class='icon'>arrow_back</span></button><div class='titles'><div class='name'></div><div class='when'></div></div></div><div class='stage'><img class='full'><div class='nofilm hidden'><span class='icon'>movie</span><div>Can't play this video</div></div></div><div class='tools'><button class='iconbtn' data-k='delete'><span class='icon'>delete</span></button></div></div></div>";
-    var why = alloc.String.init(a);
-    if not dom.set_markup(host, item: root, markup: markup, why: &mut why, a: a) {
-        host_api.log(host, msg: why.view());
-    }
-    let app = first(host, selector: ".app", a: a);
-    dom.listen(host, item: app, kind: "click");
-    // Back, while a picture is shown whole, is the page's: to the grid.
-    dom.listen(host, item: dom.root(host), kind: "back");
+    let locale = host_api.locale(host, a: a);
+    let lang = lang_of(locale.view());
     var state = Photos {
         all: alloc.List(Item).init(a),
         shown: alloc.String.init(a),
         whole: NONE,
         playing: NONE,
         stale: false,
-        list: first(host, selector: ".list", a: a),
-        count: first(host, selector: ".count", a: a),
-        days: first(host, selector: ".days", a: a),
-        empty: first(host, selector: ".empty", a: a),
-        view: first(host, selector: ".view", a: a),
-        full: first(host, selector: ".full", a: a),
-        nofilm: first(host, selector: ".nofilm", a: a),
-        name: first(host, selector: ".name", a: a),
-        when: first(host, selector: ".when", a: a),
+        lang: lang,
+        locale: locale,
+        list: 0,
+        count: 0,
+        days: 0,
+        empty: 0,
+        view: 0,
+        full: 0,
+        nofilm: 0,
+        name: 0,
+        when: 0,
     };
+    page(&mut state, host: host, a: a);
+    // Back, while a picture is shown whole, is the page's: to the grid.
+    dom.listen(host, item: dom.root(host), kind: "back");
     _ = look(&mut state, host: host, a: a);
     thumbs(&mut state, host: host, a: a);
     show(&mut state, host: host, a: a);
     return state;
 }
 
+/// The page made, in the phone's language: its markup and the nodes it
+/// keeps, for show to fill.
+fn page(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
+    let lang = state.lang;
+    var markup = alloc.String.init(a);
+    markup.push_str("<div class='app'><div class='list'><div class='big'>");
+    put(&mut markup, lang: lang, s: "Photos");
+    markup.push_str("</div><div class='count'></div><div class='empty hidden'><span class='icon'>photo_library</span><div>");
+    put(&mut markup, lang: lang, s: "No photos yet");
+    markup.push_str("</div></div><div class='days'></div></div><div class='view hidden'><div class='top'><button class='iconbtn' data-k='close'><span class='icon'>arrow_back</span></button><div class='titles'><div class='name'></div><div class='when'></div></div></div><div class='stage'><img class='full'><div class='nofilm hidden'><span class='icon'>movie</span><div>");
+    put(&mut markup, lang: lang, s: "Can't play this video");
+    markup.push_str("</div></div></div><div class='tools'><button class='iconbtn' data-k='delete'><span class='icon'>delete</span></button></div></div></div>");
+    var why = alloc.String.init(a);
+    if not dom.set_markup(host, item: dom.root(host), markup: markup.view(), why: &mut why, a: a) {
+        host_api.log(host, msg: why.view());
+    }
+    let app = first(host, selector: ".app", a: a);
+    dom.listen(host, item: app, kind: "click");
+    // A swipe, while a picture is shown whole, goes to the next or the one
+    // before (arche-os T12).
+    dom.listen(host, item: app, kind: "swipe");
+    state.list = first(host, selector: ".list", a: a);
+    state.count = first(host, selector: ".count", a: a);
+    state.days = first(host, selector: ".days", a: a);
+    state.empty = first(host, selector: ".empty", a: a);
+    state.view = first(host, selector: ".view", a: a);
+    state.full = first(host, selector: ".full", a: a);
+    state.nofilm = first(host, selector: ".nofilm", a: a);
+    state.name = first(host, selector: ".name", a: a);
+    state.when = first(host, selector: ".when", a: a);
+}
+
+/// The language of a locale: "uz-UZ" Uzbek, "ru-RU" Russian, any other
+/// English.
+fn lang_of(locale: str) -> u32 {
+    if locale.starts_with("uz") {
+        return UZ;
+    }
+    if locale.starts_with("ru") {
+        return RU;
+    }
+    return EN;
+}
+
+/// The English words s, in lang: s itself in English, and for words it
+/// has none for. A month is said as a date says it ("10-noyabr", "10
+/// ноября").
+fn say(lang: u32, s: str) -> str {
+    if lang == EN {
+        return s;
+    }
+    if s.eq("Photos") {
+        if lang == UZ {
+            return "Galereya";
+        }
+        if lang == RU {
+            return "Галерея";
+        }
+    }
+    if s.eq("No photos yet") {
+        if lang == UZ {
+            return "Hozircha suratlar yoʻq";
+        }
+        if lang == RU {
+            return "Пока нет фото";
+        }
+    }
+    if s.eq("Can't play this video") {
+        if lang == UZ {
+            return "Bu videoni ijro etib boʻlmaydi";
+        }
+        if lang == RU {
+            return "Не удаётся воспроизвести видео";
+        }
+    }
+    if s.eq("Photo") {
+        if lang == UZ {
+            return "Surat";
+        }
+        if lang == RU {
+            return "Фото";
+        }
+    }
+    if s.eq("Video") {
+        if lang == UZ {
+            return "Video";
+        }
+        if lang == RU {
+            return "Видео";
+        }
+    }
+    if s.eq("Earlier") {
+        if lang == UZ {
+            return "Avvalroq";
+        }
+        if lang == RU {
+            return "Ранее";
+        }
+    }
+    if s.eq("Today") {
+        if lang == UZ {
+            return "Bugun";
+        }
+        if lang == RU {
+            return "Сегодня";
+        }
+    }
+    if s.eq("Yesterday") {
+        if lang == UZ {
+            return "Kecha";
+        }
+        if lang == RU {
+            return "Вчера";
+        }
+    }
+    if s.eq("Monday") {
+        if lang == UZ {
+            return "Dushanba";
+        }
+        if lang == RU {
+            return "Понедельник";
+        }
+    }
+    if s.eq("Tuesday") {
+        if lang == UZ {
+            return "Seshanba";
+        }
+        if lang == RU {
+            return "Вторник";
+        }
+    }
+    if s.eq("Wednesday") {
+        if lang == UZ {
+            return "Chorshanba";
+        }
+        if lang == RU {
+            return "Среда";
+        }
+    }
+    if s.eq("Thursday") {
+        if lang == UZ {
+            return "Payshanba";
+        }
+        if lang == RU {
+            return "Четверг";
+        }
+    }
+    if s.eq("Friday") {
+        if lang == UZ {
+            return "Juma";
+        }
+        if lang == RU {
+            return "Пятница";
+        }
+    }
+    if s.eq("Saturday") {
+        if lang == UZ {
+            return "Shanba";
+        }
+        if lang == RU {
+            return "Суббота";
+        }
+    }
+    if s.eq("Sunday") {
+        if lang == UZ {
+            return "Yakshanba";
+        }
+        if lang == RU {
+            return "Воскресенье";
+        }
+    }
+    if s.eq("January") {
+        if lang == UZ {
+            return "yanvar";
+        }
+        if lang == RU {
+            return "января";
+        }
+    }
+    if s.eq("February") {
+        if lang == UZ {
+            return "fevral";
+        }
+        if lang == RU {
+            return "февраля";
+        }
+    }
+    if s.eq("March") {
+        if lang == UZ {
+            return "mart";
+        }
+        if lang == RU {
+            return "марта";
+        }
+    }
+    if s.eq("April") {
+        if lang == UZ {
+            return "aprel";
+        }
+        if lang == RU {
+            return "апреля";
+        }
+    }
+    if s.eq("May") {
+        if lang == UZ {
+            return "may";
+        }
+        if lang == RU {
+            return "мая";
+        }
+    }
+    if s.eq("June") {
+        if lang == UZ {
+            return "iyun";
+        }
+        if lang == RU {
+            return "июня";
+        }
+    }
+    if s.eq("July") {
+        if lang == UZ {
+            return "iyul";
+        }
+        if lang == RU {
+            return "июля";
+        }
+    }
+    if s.eq("August") {
+        if lang == UZ {
+            return "avgust";
+        }
+        if lang == RU {
+            return "августа";
+        }
+    }
+    if s.eq("September") {
+        if lang == UZ {
+            return "sentabr";
+        }
+        if lang == RU {
+            return "сентября";
+        }
+    }
+    if s.eq("October") {
+        if lang == UZ {
+            return "oktabr";
+        }
+        if lang == RU {
+            return "октября";
+        }
+    }
+    if s.eq("November") {
+        if lang == UZ {
+            return "noyabr";
+        }
+        if lang == RU {
+            return "ноября";
+        }
+    }
+    if s.eq("December") {
+        if lang == UZ {
+            return "dekabr";
+        }
+        if lang == RU {
+            return "декабря";
+        }
+    }
+    return s;
+}
+
+/// The English words s, in lang, onto markup out.
+fn put(out: &mut alloc.String, lang: u32, s: str) {
+    appkit.escaped(out, s: say(lang, s: s));
+}
+
 fn update(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
     var changed = look(state, host: host, a: a);
+    // The phone's language changed: the page made again in it, the grid or
+    // what is shown whole as it was.
+    let locale = host_api.locale(host, a: a);
+    if not locale.view().eq(state.locale.view()) {
+        state.lang = lang_of(locale.view());
+        state.locale = locale;
+        page(state, host: host, a: a);
+        changed = true;
+    }
     for e in dom.events(host, a: a).items() {
         if e.kind.view().eq("back") {
             press(state, host: host, key: "close", a: a);
+            changed = true;
+        } else if e.kind.view().eq("swipe") and state.shown.len() > 0 {
+            // As a gallery's: the finger to the left, the next (older).
+            if e.value.view().eq("left") {
+                turn(state, host: host, by: 1, a: a);
+            } else {
+                turn(state, host: host, by: -1, a: a);
+            }
             changed = true;
         } else if e.kind.view().eq("click") {
             match key_of(host, n: e.target, a: a) {
@@ -366,28 +665,50 @@ fn taken(name: str) -> [2]i64 {
     return [days_of(y: y, m: m, d: d), minute];
 }
 
-/// A day as a gallery says it, now being the day today: Today,
+/// A day as a gallery says it in lang, now being the day today: Today,
 /// Yesterday, a weekday within the week, else its date, with its year
-/// when that is not this one.
-fn day_said(day: i64, now: i64, out: &mut alloc.String) {
+/// when that is not this one ("Nov 10, 2025"; "10-noyabr, 2025"; "10
+/// ноября 2025 г.").
+fn day_said(day: i64, now: i64, lang: u32, out: &mut alloc.String) {
     if day == NO_DAY {
-        out.push_str("Earlier");
+        out.push_str(say(lang, s: "Earlier"));
         return;
     }
     if day == now {
-        out.push_str("Today");
+        out.push_str(say(lang, s: "Today"));
         return;
     }
     if day == now - 1 {
-        out.push_str("Yesterday");
+        out.push_str(say(lang, s: "Yesterday"));
         return;
     }
     if day < now and day > now - 7 {
-        out.push_str(weekday_name(day));
+        out.push_str(say(lang, s: weekday_name(day)));
         return;
     }
     let c = civil_of(day);
     let n = civil_of(now);
+    if lang == UZ {
+        out.push_u64(c.d as u64);
+        out.push_str("-");
+        out.push_str(say(lang, s: month_name(c.m)));
+        if c.y != n.y {
+            out.push_str(", ");
+            out.push_u64(c.y as u64);
+        }
+        return;
+    }
+    if lang == RU {
+        out.push_u64(c.d as u64);
+        out.push_str(" ");
+        out.push_str(say(lang, s: month_name(c.m)));
+        if c.y != n.y {
+            out.push_str(" ");
+            out.push_u64(c.y as u64);
+            out.push_str(" г.");
+        }
+        return;
+    }
     out.push_str(month_name(c.m)[0..3]);
     out.push_str(" ");
     out.push_u64(c.d as u64);
@@ -644,9 +965,51 @@ fn press(state: &mut Photos, host: &mut std.Host, key: str, a: alloc.Allocator) 
     }
 }
 
-/// "1 photo", "2 photos", "1 video": how many there are of what.
-fn counted(out: &mut alloc.String, n: u64, what: str) {
+/// The picture by places from the one shown, in the grid's order, shown
+/// whole in its place; none past either end.
+fn turn(state: &mut Photos, host: &mut std.Host, by: i64, a: alloc.Allocator) {
+    var at: i64 = -1;
+    var k: usize = 0;
+    while k < state.all.len() : (k += 1) {
+        if state.all.items()[k].path.view().eq(state.shown.view()) {
+            at = k as i64;
+        }
+    }
+    let to = at + by;
+    if at < 0 or to < 0 or to >= state.all.len() as i64 {
+        return;
+    }
+    if is_movie(state.shown.view()) {
+        video.stop(host);
+    }
+    state.playing = NONE;
+    var key = alloc.String.from("p:", a);
+    key.push_str(state.all.items()[to as usize].path.view());
+    press(state, host: host, key: key.view(), a: a);
+}
+
+/// "1 photo", "2 photos", "1 video": how many there are of what, in
+/// lang. Uzbek's noun is as it is after a number ("2 ta surat"), and
+/// Russian's фото and видео never change ("2 фото").
+fn counted(out: &mut alloc.String, n: u64, what: str, lang: u32) {
     out.push_u64(n);
+    if lang == UZ {
+        out.push_str(" ta ");
+        if what.eq("photo") {
+            out.push_str("surat");
+        } else {
+            out.push_str("video");
+        }
+        return;
+    }
+    if lang == RU {
+        if what.eq("photo") {
+            out.push_str(" фото");
+        } else {
+            out.push_str(" видео");
+        }
+        return;
+    }
     out.push_str(" ");
     out.push_str(what);
     if n != 1 {
@@ -699,7 +1062,7 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
             var title = alloc.String.init(a);
             var under = alloc.String.init(a);
             if p.day != NO_DAY {
-                day_said(day: p.day, now: now, out: &mut title);
+                day_said(day: p.day, now: now, lang: state.lang, out: &mut title);
                 under.push_u64((p.minute / 60) as u64);
                 under.push_str(":");
                 if p.minute % 60 < 10 {
@@ -738,13 +1101,13 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
     }
     var count = alloc.String.init(a);
     if photos > 0 {
-        counted(&mut count, n: photos, what: "photo");
+        counted(&mut count, n: photos, what: "photo", lang: state.lang);
     }
     if movies > 0 {
         if photos > 0 {
             count.push_str(" · ");
         }
-        counted(&mut count, n: movies, what: "video");
+        counted(&mut count, n: movies, what: "video", lang: state.lang);
     }
     dom.set_text(host, item: state.count, text: count.view());
     for old in dom.children(host, item: state.days, a: a).items() {
@@ -759,7 +1122,7 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
             let head = dom.create_element(host, tag: "div");
             dom.set_attribute(host, item: head, name: "class", value_: "day");
             var said = alloc.String.init(a);
-            day_said(day: p.day, now: now, out: &mut said);
+            day_said(day: p.day, now: now, lang: state.lang, out: &mut said);
             dom.set_text(host, item: head, text: said.view());
             dom.append_child(host, parent_: state.days, child: head);
             grid = dom.create_element(host, tag: "div");
@@ -772,10 +1135,11 @@ fn show(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) {
         k.push_str(p.path.view());
         dom.set_attribute(host, item: cell, name: "data-k", value_: k.view());
         // Its name, as a screen reader says it, as Android's gallery's.
-        var label = alloc.String.from("Photo ", a);
+        var label = alloc.String.from(say(state.lang, s: "Photo"), a);
         if p.movie {
-            label = alloc.String.from("Video ", a);
+            label = alloc.String.from(say(state.lang, s: "Video"), a);
         }
+        label.push_str(" ");
         label.push_str(p.name.view());
         dom.set_attribute(host, item: cell, name: "aria-label", value_: label.view());
         if p.handle != NONE {

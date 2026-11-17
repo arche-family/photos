@@ -3,7 +3,7 @@
 --- frame 0  (clicks fed to guest: []) ---
    [page] 45 nodes
    #1 body {back}
-     #2 div.app {click}
+     #2 div.app {click swipe}
        #3 div.list
          #4 div.big
            #5 "Photos"
@@ -52,7 +52,7 @@
    [tap] #56
    [page] 47 nodes
    #1 body.black [data-back="1"] {back}
-     #2 div.app {click}
+     #2 div.app {click swipe}
        #3 div.list.hidden
          #4 div.big
            #5 "Photos"
@@ -103,7 +103,7 @@
    [tap] #15
    [page] 47 nodes
    #1 body {back}
-     #2 div.app {click}
+     #2 div.app {click swipe}
        #3 div.list
          #4 div.big
            #5 "Photos"
@@ -154,7 +154,7 @@
    [tap] #66
    [page] 47 nodes
    #1 body.black [data-back="1"] {back}
-     #2 div.app {click}
+     #2 div.app {click swipe}
        #3 div.list.hidden
          #4 div.big
            #5 "Photos"
@@ -208,7 +208,7 @@
    [tap] #15
    [page] 47 nodes
    #1 body {back}
-     #2 div.app {click}
+     #2 div.app {click swipe}
        #3 div.list
          #4 div.big
            #5 "Photos"
@@ -260,7 +260,7 @@
    [tap] #90
    [page] 47 nodes
    #1 body.black [data-back="1"] {back}
-     #2 div.app {click}
+     #2 div.app {click swipe}
        #3 div.list.hidden
          #4 div.big
            #5 "Photos"
@@ -311,7 +311,7 @@
    [tap] #29
    [page] 45 nodes
    #1 body {back}
-     #2 div.app {click}
+     #2 div.app {click swipe}
        #3 div.list
          #4 div.big
            #5 "Photos"
