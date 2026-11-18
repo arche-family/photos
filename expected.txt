@@ -1,33 +1,38 @@
 === headless run: 7 frames ===
 
 --- frame 0  (clicks fed to guest: []) ---
-   [page] 45 nodes
+   [page] 50 nodes
    #1 body {back}
      #2 div.app {click swipe}
        #3 div.list
          #4 div.big
            #5 "Photos"
          #6 div.count
-           #46 "2 photos · 1 video"
+           #50 "3 photos · 1 video"
          #7 div.empty.hidden
            #8 span.icon
              #9 "photo_library"
            #10 div
              #11 "No photos yet"
          #12 div.days
-           #47 div.day
-             #48 "Today"
-           #49 div.grid
-             #50 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
-               #51 img.thumb [src="0" alt="VID_20261110_100000.avi"]
-               #52 div.length
-                 #53 span.icon.fill
-                   #54 "play_circle"
-                 #55 span
-             #56 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
-               #57 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #58 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
-               #59 img.thumb [src="2" alt="IMG_20261110_090000.png"]
+           #51 div.day
+             #52 "Today"
+           #53 div.grid
+             #54 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
+               #55 img.thumb [src="0" alt="VID_20261110_100000.avi"]
+               #56 div.length
+                 #57 span.icon.fill
+                   #58 "play_circle"
+                 #59 span
+             #60 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
+               #61 img.thumb [src="1" alt="IMG_20261110_093000.png"]
+             #62 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
+               #63 img.thumb [src="2" alt="IMG_20261110_090000.png"]
+           #64 div.day
+             #65 "Yesterday"
+           #66 div.grid
+             #67 button.cell [data-k="p:Pictures/Screenshots/Screenshot_20261109_201500.png" aria-label="Photo Screenshot_20261109_201500.png"]
+               #68 img.thumb [src="3" alt="Screenshot_20261109_201500.png"]
        #13 div.view.hidden
          #14 div.top
            #15 button.iconbtn [data-k="close"]
@@ -50,33 +55,38 @@
 
 --- frame 1  (clicks fed to guest: []) ---
    [tap] #56
-   [page] 47 nodes
+   [page] 52 nodes
    #1 body.black [data-back="1"] {back}
      #2 div.app {click swipe}
        #3 div.list.hidden
          #4 div.big
            #5 "Photos"
          #6 div.count
-           #46 "2 photos · 1 video"
+           #50 "3 photos · 1 video"
          #7 div.empty.hidden
            #8 span.icon
              #9 "photo_library"
            #10 div
              #11 "No photos yet"
          #12 div.days
-           #47 div.day
-             #48 "Today"
-           #49 div.grid
-             #50 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
-               #51 img.thumb [src="0" alt="VID_20261110_100000.avi"]
-               #52 div.length
-                 #53 span.icon.fill
-                   #54 "play_circle"
-                 #55 span
-             #56 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
-               #57 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #58 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
-               #59 img.thumb [src="2" alt="IMG_20261110_090000.png"]
+           #51 div.day
+             #52 "Today"
+           #53 div.grid
+             #54 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
+               #55 img.thumb [src="0" alt="VID_20261110_100000.avi"]
+               #56 div.length
+                 #57 span.icon.fill
+                   #58 "play_circle"
+                 #59 span
+             #60 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
+               #61 img.thumb [src="1" alt="IMG_20261110_093000.png"]
+             #62 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
+               #63 img.thumb [src="2" alt="IMG_20261110_090000.png"]
+           #64 div.day
+             #65 "Yesterday"
+           #66 div.grid
+             #67 button.cell [data-k="p:Pictures/Screenshots/Screenshot_20261109_201500.png" aria-label="Photo Screenshot_20261109_201500.png"]
+               #68 img.thumb [src="3" alt="Screenshot_20261109_201500.png"]
        #13 div.view
          #14 div.top
            #15 button.iconbtn [data-k="close"]
@@ -84,111 +94,9 @@
                #17 "arrow_back"
            #18 div.titles
              #19 div.name
-               #60 "Today"
+               #69 "Today"
              #20 div.when
-               #61 "9:30 · IMG_20261110_093000.png"
-         #21 div.stage
-           #22 img.full [src="3"]
-           #23 div.nofilm.hidden
-             #24 span.icon
-               #25 "movie"
-             #26 div
-               #27 "Can't play this video"
-         #28 div.tools
-           #29 button.iconbtn [data-k="delete"]
-             #30 span.icon
-               #31 "delete"
-
---- frame 2  (clicks fed to guest: []) ---
-   [tap] #15
-   [page] 47 nodes
-   #1 body {back}
-     #2 div.app {click swipe}
-       #3 div.list
-         #4 div.big
-           #5 "Photos"
-         #6 div.count
-           #62 "2 photos · 1 video"
-         #7 div.empty.hidden
-           #8 span.icon
-             #9 "photo_library"
-           #10 div
-             #11 "No photos yet"
-         #12 div.days
-           #63 div.day
-             #64 "Today"
-           #65 div.grid
-             #66 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
-               #67 img.thumb [src="0" alt="VID_20261110_100000.avi"]
-               #68 div.length
-                 #69 span.icon.fill
-                   #70 "play_circle"
-                 #71 span
-             #72 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
-               #73 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #74 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
-               #75 img.thumb [src="2" alt="IMG_20261110_090000.png"]
-       #13 div.view.hidden
-         #14 div.top
-           #15 button.iconbtn [data-k="close"]
-             #16 span.icon
-               #17 "arrow_back"
-           #18 div.titles
-             #19 div.name
-               #60 "Today"
-             #20 div.when
-               #61 "9:30 · IMG_20261110_093000.png"
-         #21 div.stage
-           #22 img.full [src="3"]
-           #23 div.nofilm.hidden
-             #24 span.icon
-               #25 "movie"
-             #26 div
-               #27 "Can't play this video"
-         #28 div.tools
-           #29 button.iconbtn [data-k="delete"]
-             #30 span.icon
-               #31 "delete"
-
---- frame 3  (clicks fed to guest: []) ---
-   [tap] #66
-   [page] 47 nodes
-   #1 body.black [data-back="1"] {back}
-     #2 div.app {click swipe}
-       #3 div.list.hidden
-         #4 div.big
-           #5 "Photos"
-         #6 div.count
-           #62 "2 photos · 1 video"
-         #7 div.empty.hidden
-           #8 span.icon
-             #9 "photo_library"
-           #10 div
-             #11 "No photos yet"
-         #12 div.days
-           #63 div.day
-             #64 "Today"
-           #65 div.grid
-             #66 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
-               #67 img.thumb [src="0" alt="VID_20261110_100000.avi"]
-               #68 div.length
-                 #69 span.icon.fill
-                   #70 "play_circle"
-                 #71 span
-             #72 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
-               #73 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #74 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
-               #75 img.thumb [src="2" alt="IMG_20261110_090000.png"]
-       #13 div.view
-         #14 div.top
-           #15 button.iconbtn [data-k="close"]
-             #16 span.icon
-               #17 "arrow_back"
-           #18 div.titles
-             #19 div.name
-               #76 "Today"
-             #20 div.when
-               #77 "10:00 · VID_20261110_100000.avi"
+               #70 "10:00 · VID_20261110_100000.avi"
          #21 div.stage
            #22 img.full [src="0"]
            #23 div.nofilm.hidden
@@ -204,35 +112,40 @@
    [call] arche:phone/video@0.1.0#view()
    [next frame in 33 ms]
 
---- frame 4  (clicks fed to guest: []) ---
+--- frame 2  (clicks fed to guest: []) ---
    [tap] #15
-   [page] 47 nodes
+   [page] 52 nodes
    #1 body {back}
      #2 div.app {click swipe}
        #3 div.list
          #4 div.big
            #5 "Photos"
          #6 div.count
-           #78 "2 photos · 1 video"
+           #71 "3 photos · 1 video"
          #7 div.empty.hidden
            #8 span.icon
              #9 "photo_library"
            #10 div
              #11 "No photos yet"
          #12 div.days
-           #79 div.day
-             #80 "Today"
-           #81 div.grid
-             #82 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
-               #83 img.thumb [src="0" alt="VID_20261110_100000.avi"]
-               #84 div.length
-                 #85 span.icon.fill
-                   #86 "play_circle"
-                 #87 span
-             #88 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
-               #89 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #90 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
-               #91 img.thumb [src="2" alt="IMG_20261110_090000.png"]
+           #72 div.day
+             #73 "Today"
+           #74 div.grid
+             #75 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
+               #76 img.thumb [src="0" alt="VID_20261110_100000.avi"]
+               #77 div.length
+                 #78 span.icon.fill
+                   #79 "play_circle"
+                 #80 span
+             #81 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
+               #82 img.thumb [src="1" alt="IMG_20261110_093000.png"]
+             #83 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
+               #84 img.thumb [src="2" alt="IMG_20261110_090000.png"]
+           #85 div.day
+             #86 "Yesterday"
+           #87 div.grid
+             #88 button.cell [data-k="p:Pictures/Screenshots/Screenshot_20261109_201500.png" aria-label="Photo Screenshot_20261109_201500.png"]
+               #89 img.thumb [src="3" alt="Screenshot_20261109_201500.png"]
        #13 div.view.hidden
          #14 div.top
            #15 button.iconbtn [data-k="close"]
@@ -240,9 +153,9 @@
                #17 "arrow_back"
            #18 div.titles
              #19 div.name
-               #76 "Today"
+               #69 "Today"
              #20 div.when
-               #77 "10:00 · VID_20261110_100000.avi"
+               #70 "10:00 · VID_20261110_100000.avi"
          #21 div.stage
            #22 img.full [src="0"]
            #23 div.nofilm.hidden
@@ -256,47 +169,164 @@
                #31 "delete"
    [call] arche:phone/video@0.1.0#stop()
 
---- frame 5  (clicks fed to guest: []) ---
-   [tap] #90
-   [page] 47 nodes
-   #1 body.black [data-back="1"] {back}
+--- frame 3  (clicks fed to guest: []) ---
+   [tap] #66
+   [page] 52 nodes
+   #1 body {back}
      #2 div.app {click swipe}
-       #3 div.list.hidden
+       #3 div.list
          #4 div.big
            #5 "Photos"
          #6 div.count
-           #78 "2 photos · 1 video"
+           #71 "3 photos · 1 video"
          #7 div.empty.hidden
            #8 span.icon
              #9 "photo_library"
            #10 div
              #11 "No photos yet"
          #12 div.days
-           #79 div.day
-             #80 "Today"
-           #81 div.grid
-             #82 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
-               #83 img.thumb [src="0" alt="VID_20261110_100000.avi"]
-               #84 div.length
-                 #85 span.icon.fill
-                   #86 "play_circle"
-                 #87 span
-             #88 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
-               #89 img.thumb [src="1" alt="IMG_20261110_093000.png"]
-             #90 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
-               #91 img.thumb [src="2" alt="IMG_20261110_090000.png"]
-       #13 div.view
+           #72 div.day
+             #73 "Today"
+           #74 div.grid
+             #75 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
+               #76 img.thumb [src="0" alt="VID_20261110_100000.avi"]
+               #77 div.length
+                 #78 span.icon.fill
+                   #79 "play_circle"
+                 #80 span
+             #81 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
+               #82 img.thumb [src="1" alt="IMG_20261110_093000.png"]
+             #83 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
+               #84 img.thumb [src="2" alt="IMG_20261110_090000.png"]
+           #85 div.day
+             #86 "Yesterday"
+           #87 div.grid
+             #88 button.cell [data-k="p:Pictures/Screenshots/Screenshot_20261109_201500.png" aria-label="Photo Screenshot_20261109_201500.png"]
+               #89 img.thumb [src="3" alt="Screenshot_20261109_201500.png"]
+       #13 div.view.hidden
          #14 div.top
            #15 button.iconbtn [data-k="close"]
              #16 span.icon
                #17 "arrow_back"
            #18 div.titles
              #19 div.name
-               #92 "Today"
+               #69 "Today"
              #20 div.when
-               #93 "9:00 · IMG_20261110_090000.png"
+               #70 "10:00 · VID_20261110_100000.avi"
          #21 div.stage
-           #22 img.full [src="3"]
+           #22 img.full [src="0"]
+           #23 div.nofilm.hidden
+             #24 span.icon
+               #25 "movie"
+             #26 div
+               #27 "Can't play this video"
+         #28 div.tools
+           #29 button.iconbtn [data-k="delete"]
+             #30 span.icon
+               #31 "delete"
+
+--- frame 4  (clicks fed to guest: []) ---
+   [tap] #15
+   [page] 52 nodes
+   #1 body {back}
+     #2 div.app {click swipe}
+       #3 div.list
+         #4 div.big
+           #5 "Photos"
+         #6 div.count
+           #90 "3 photos · 1 video"
+         #7 div.empty.hidden
+           #8 span.icon
+             #9 "photo_library"
+           #10 div
+             #11 "No photos yet"
+         #12 div.days
+           #91 div.day
+             #92 "Today"
+           #93 div.grid
+             #94 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
+               #95 img.thumb [src="0" alt="VID_20261110_100000.avi"]
+               #96 div.length
+                 #97 span.icon.fill
+                   #98 "play_circle"
+                 #99 span
+             #100 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
+               #101 img.thumb [src="1" alt="IMG_20261110_093000.png"]
+             #102 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
+               #103 img.thumb [src="2" alt="IMG_20261110_090000.png"]
+           #104 div.day
+             #105 "Yesterday"
+           #106 div.grid
+             #107 button.cell [data-k="p:Pictures/Screenshots/Screenshot_20261109_201500.png" aria-label="Photo Screenshot_20261109_201500.png"]
+               #108 img.thumb [src="3" alt="Screenshot_20261109_201500.png"]
+       #13 div.view.hidden
+         #14 div.top
+           #15 button.iconbtn [data-k="close"]
+             #16 span.icon
+               #17 "arrow_back"
+           #18 div.titles
+             #19 div.name
+               #69 "Today"
+             #20 div.when
+               #70 "10:00 · VID_20261110_100000.avi"
+         #21 div.stage
+           #22 img.full [src="0"]
+           #23 div.nofilm.hidden
+             #24 span.icon
+               #25 "movie"
+             #26 div
+               #27 "Can't play this video"
+         #28 div.tools
+           #29 button.iconbtn [data-k="delete"]
+             #30 span.icon
+               #31 "delete"
+
+--- frame 5  (clicks fed to guest: []) ---
+   [tap] #90
+   [page] 52 nodes
+   #1 body {back}
+     #2 div.app {click swipe}
+       #3 div.list
+         #4 div.big
+           #5 "Photos"
+         #6 div.count
+           #90 "3 photos · 1 video"
+         #7 div.empty.hidden
+           #8 span.icon
+             #9 "photo_library"
+           #10 div
+             #11 "No photos yet"
+         #12 div.days
+           #91 div.day
+             #92 "Today"
+           #93 div.grid
+             #94 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
+               #95 img.thumb [src="0" alt="VID_20261110_100000.avi"]
+               #96 div.length
+                 #97 span.icon.fill
+                   #98 "play_circle"
+                 #99 span
+             #100 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
+               #101 img.thumb [src="1" alt="IMG_20261110_093000.png"]
+             #102 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
+               #103 img.thumb [src="2" alt="IMG_20261110_090000.png"]
+           #104 div.day
+             #105 "Yesterday"
+           #106 div.grid
+             #107 button.cell [data-k="p:Pictures/Screenshots/Screenshot_20261109_201500.png" aria-label="Photo Screenshot_20261109_201500.png"]
+               #108 img.thumb [src="3" alt="Screenshot_20261109_201500.png"]
+       #13 div.view.hidden
+         #14 div.top
+           #15 button.iconbtn [data-k="close"]
+             #16 span.icon
+               #17 "arrow_back"
+           #18 div.titles
+             #19 div.name
+               #69 "Today"
+             #20 div.when
+               #70 "10:00 · VID_20261110_100000.avi"
+         #21 div.stage
+           #22 img.full [src="0"]
            #23 div.nofilm.hidden
              #24 span.icon
                #25 "movie"
@@ -309,31 +339,38 @@
 
 --- frame 6  (clicks fed to guest: []) ---
    [tap] #29
-   [page] 45 nodes
+   [page] 52 nodes
    #1 body {back}
      #2 div.app {click swipe}
        #3 div.list
          #4 div.big
            #5 "Photos"
          #6 div.count
-           #94 "1 photo · 1 video"
+           #109 "3 photos · 1 video"
          #7 div.empty.hidden
            #8 span.icon
              #9 "photo_library"
            #10 div
              #11 "No photos yet"
          #12 div.days
-           #95 div.day
-             #96 "Today"
-           #97 div.grid
-             #98 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
-               #99 img.thumb [src="0" alt="VID_20261110_100000.avi"]
-               #100 div.length
-                 #101 span.icon.fill
-                   #102 "play_circle"
-                 #103 span
-             #104 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
-               #105 img.thumb [src="1" alt="IMG_20261110_093000.png"]
+           #110 div.day
+             #111 "Today"
+           #112 div.grid
+             #113 button.cell [data-k="p:Movies/VID_20261110_100000.avi" aria-label="Video VID_20261110_100000.avi"]
+               #114 img.thumb [src="0" alt="VID_20261110_100000.avi"]
+               #115 div.length
+                 #116 span.icon.fill
+                   #117 "play_circle"
+                 #118 span
+             #119 button.cell [data-k="p:Pictures/IMG_20261110_093000.png" aria-label="Photo IMG_20261110_093000.png"]
+               #120 img.thumb [src="1" alt="IMG_20261110_093000.png"]
+             #121 button.cell [data-k="p:Pictures/IMG_20261110_090000.png" aria-label="Photo IMG_20261110_090000.png"]
+               #122 img.thumb [src="2" alt="IMG_20261110_090000.png"]
+           #123 div.day
+             #124 "Yesterday"
+           #125 div.grid
+             #126 button.cell [data-k="p:Pictures/Screenshots/Screenshot_20261109_201500.png" aria-label="Photo Screenshot_20261109_201500.png"]
+               #127 img.thumb [src="3" alt="Screenshot_20261109_201500.png"]
        #13 div.view.hidden
          #14 div.top
            #15 button.iconbtn [data-k="close"]
@@ -341,11 +378,11 @@
                #17 "arrow_back"
            #18 div.titles
              #19 div.name
-               #92 "Today"
+               #69 "Today"
              #20 div.when
-               #93 "9:00 · IMG_20261110_090000.png"
+               #70 "10:00 · VID_20261110_100000.avi"
          #21 div.stage
-           #22 img.full [src="3"]
+           #22 img.full [src="0"]
            #23 div.nofilm.hidden
              #24 span.icon
                #25 "movie"

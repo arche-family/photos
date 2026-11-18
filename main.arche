@@ -1,9 +1,9 @@
 /// Photos, the Arche phone's gallery, written in Arche (docs/sprints.md
 /// T7, T10, T12 in arche-os), as a phone's is: the pictures of the
-/// phone's shared Pictures folder (PNG and JPEG) and the videos of its
-/// Movies folder, the newest first, under the day each was taken (a
-/// camera names them by when, IMG_20261110_104427.jpg): Today, Yesterday,
-/// a weekday, or the date. Each is a square of a grid four across, edge
+/// phone's shared Pictures folder (PNG and JPEG) and of its folders (its
+/// Screenshots), and the videos of its Movies folder, the newest first,
+/// under the day each was taken (a camera names them by when,
+/// IMG_20261110_104427.jpg): Today, Yesterday, a weekday, or the date. Each is a square of a grid four across, edge
 /// to edge, a video's with its length in its corner. A tap shows a
 /// picture whole on black, when it was taken at the top by Back's arrow
 /// and Delete at the bottom, and plays a video there. The phone decodes
@@ -641,10 +641,10 @@ fn today(host: &mut std.Host) -> i64 {
 
 /// When a camera's name says it was taken: IMG_YYYYMMDD_HHMMSS or
 /// VID_..., or any name with YYYYMMDD_HHMMSS after a prefix of letters
-/// and a _. The day, and the minute of it.
+/// and a _, as a screenshot's Screenshot_. The day, and the minute of it.
 fn taken(name: str) -> [2]i64 {
     var at: usize = 0;
-    while at < name.len() and at < 8 and name.bytes()[at] != '_' {
+    while at < name.len() and at < 16 and name.bytes()[at] != '_' {
         at += 1;
     }
     if at >= name.len() or name.bytes()[at] != '_' {
@@ -718,10 +718,19 @@ fn day_said(day: i64, now: i64, lang: u32, out: &mut alloc.String) {
     }
 }
 
-/// The items of folder, picture or video as movie says, onto into.
-fn found_in(host: &mut std.Host, folder: str, movie: bool, into: &mut alloc.List(Item), a: alloc.Allocator) {
+/// The items of folder, picture or video as movie says, onto into; with
+/// within, those of its folders too, one deep, as Pictures' Screenshots,
+/// where the phone keeps its screenshots, as Android's does.
+fn found_in(host: &mut std.Host, folder: str, movie: bool, within: bool, into: &mut alloc.List(Item), a: alloc.Allocator) {
     for e in files.list(host, path: folder, a: a).items() {
         let n = e.name.view();
+        if e.folder and within and not n.starts_with(".") {
+            var inner = alloc.String.from(folder, a);
+            inner.push_str("/");
+            inner.push_str(n);
+            found_in(host, folder: inner.view(), movie: movie, within: false, into: into, a: a);
+            continue;
+        }
         if e.folder or n.starts_with(".") or (movie and not is_movie(n)) or (not movie and not is_picture(n)) {
             continue;
         }
@@ -758,8 +767,8 @@ fn before(x: &Item, y: &Item) -> bool {
 /// thumbnail. Whether anything changed.
 fn look(state: &mut Photos, host: &mut std.Host, a: alloc.Allocator) -> bool {
     var found = alloc.List(Item).init(a);
-    found_in(host, folder: PICTURES, movie: false, into: &mut found, a: a);
-    found_in(host, folder: MOVIES, movie: true, into: &mut found, a: a);
+    found_in(host, folder: PICTURES, movie: false, within: true, into: &mut found, a: a);
+    found_in(host, folder: MOVIES, movie: true, within: false, into: &mut found, a: a);
     var order = alloc.List(usize).init(a);
     var j: usize = 0;
     while j < found.len() : (j += 1) {
